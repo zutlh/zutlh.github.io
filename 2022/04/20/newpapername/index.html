@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+    
+    <title>Optional详解 - 山海经</title>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    
+    
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <meta name="description" content="&lt;!--more--&gt; 在文章的开头，先说下NPE问题，NPE问题就是，我们在开发中经常碰到的NullPointerException.假设我们有两个类，他们的UML类图如下图所示  在这种情况下，有如下代码 1user.getAddress().getProvince();  这种写法，在user为null时，是有可能报NullPointerException异常的。为了解决这个问题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Optional详解">
+<meta property="og:url" content="http://zutlh.top/2022/04/20/newpapername/index.html">
+<meta property="og:site_name" content="山海经">
+<meta property="og:description" content="&lt;!--more--&gt; 在文章的开头，先说下NPE问题，NPE问题就是，我们在开发中经常碰到的NullPointerException.假设我们有两个类，他们的UML类图如下图所示  在这种情况下，有如下代码 1user.getAddress().getProvince();  这种写法，在user为null时，是有可能报NullPointerException异常的。为了解决这个问题">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2022/04/20/LsuwBn.png">
+<meta property="og:image" content="https://s1.ax1x.com/2022/04/21/L617nS.png">
+<meta property="article:published_time" content="2022-04-20T02:29:34.000Z">
+<meta property="article:modified_time" content="2022-04-21T07:45:25.493Z">
+<meta property="article:author" content="Liu Hao">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/04/20/LsuwBn.png">
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+    />
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"
+    />
+    
+    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1650531382911">
+    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1650531382911">
+    <link rel="stylesheet" href="/css/style.css?v=1650531382911">
+     
+    
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="mdui-drawer-body-left">
+    
+    <div id="nexmoe-background">
+        <div class="nexmoe-bg" style="background-image: url(https://cdn.jsdelivr.net/gh/nexmoe/nexmoe.github.io@latest/images/cover/5c3aec85a4343.jpg)"></div>
+        <div class="mdui-appbar mdui-shadow-0">
+            <div class="mdui-toolbar">
+                <a mdui-drawer="{target: '#drawer', swipe: true}" title="menu" class="mdui-btn mdui-btn-icon mdui-ripple"><i class="mdui-icon nexmoefont icon-menu"></i></a>
+                <div class="mdui-toolbar-spacer"></div>
+                <!--<a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>-->
+                <a href="/" title="Liu Hao" class="mdui-btn mdui-btn-icon"><img src="https://cdn.jsdelivr.net/gh/nexmoe/nexmoe.github.io@latest/images/avatar.png" alt="Liu Hao"></a>
+            </div>
+        </div>
+    </div>
+    <div id="nexmoe-header">
+        <div class="nexmoe-drawer mdui-drawer" id="drawer">
+    <div class="nexmoe-avatar mdui-ripple">
+        <a href="/" title="Liu Hao">
+            <img src="https://cdn.jsdelivr.net/gh/nexmoe/nexmoe.github.io@latest/images/avatar.png" alt="Liu Hao" alt="Liu Hao">
+        </a>
+    </div>
+    <div class="nexmoe-count">
+        <div><span>文章</span>1</div>
+        <div><span>标签</span>1</div>
+        <div><span>分类</span>0</div>
+    </div>
+    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
+            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
+            <div class="mdui-list-item-content">
+                回到首页
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/about.html" title="关于博客">
+            <i class="mdui-list-item-icon nexmoefont icon-info-circle"></i>
+            <div class="mdui-list-item-content">
+                关于博客
+            </div>
+        </a>
+        
+        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/PY.html" title="我的朋友">
+            <i class="mdui-list-item-icon nexmoefont icon-unorderedlist"></i>
+            <div class="mdui-list-item-content">
+                我的朋友
+            </div>
+        </a>
+        
+    </div>
+    <aside id="nexmoe-sidebar">
+    
+    <div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-search">
+         
+            <form id="search_form" action_e="https://cn.bing.com/search?q=site:nexmoe.com" onsubmit="return search();">
+                <label><input id="search_value" name="q" type="search" placeholder="搜索"></label>
+            </form>
+         
+    </div>
+</div>
+    
+    <div class="nexmoe-widget-wrap">
+    <div class="nexmoe-widget nexmoe-social">
+        <a class="mdui-ripple" href="https://jq.qq.com/?_wv=1027&k=5CfKHun" target="_blank" mdui-tooltip="{content: 'QQ群'}" style="color: rgb(249, 174, 8);background-color: rgba(249, 174, 8, .1);">
+            <i class="nexmoefont icon-QQ"></i>
+        </a><a class="mdui-ripple" href="https://space.bilibili.com/20238211" target="_blank" mdui-tooltip="{content: '哔哩哔哩'}" style="color: rgb(231, 106, 141);background-color: rgba(231, 106, 141, .15);">
+            <i class="nexmoefont icon-bilibili"></i>
+        </a><a class="mdui-ripple" href="https://github.com/nexmoe/" target="_blank" mdui-tooltip="{content: 'GitHub'}" style="color: rgb(25, 23, 23);background-color: rgba(25, 23, 23, .15);">
+            <i class="nexmoefont icon-github"></i>
+        </a>
+    </div>
+</div>
+    
+    
+
+    
+    
+  <div class="nexmoe-widget-wrap">
+    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
+      <a href="/tags/Java/" style="font-size: 10px;">Java</a>
+    </div>
+    
+  </div>
+
+    
+</aside>
+    <div class="nexmoe-copyright">
+        &copy; 2022 Liu Hao
+        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
+        <br><a target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://i.dawnlab.me/c0268c1e6cfd0863d6ba35be1575941a.png" width="150px"></a><script data-ad-client="ca-pub-2058306854838448" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    </div>
+</div><!-- .nexmoe-drawer -->
+    </div>
+    <div id="nexmoe-content">
+        <div class="nexmoe-primary">
+            <div class="nexmoe-post">
+
+  <article>
+      
+          <div class="nexmoe-post-cover" style="padding-bottom: 66.66666666666666%;"> 
+              <img data-fancybox="gallery" src="https://cdn.jsdelivr.net/gh/nexmoe/nexmoe.github.io@latest/images/cover/5c3aec85a4343.jpg" alt="Optional详解" loading="lazy">
+              <h1>Optional详解</h1>
+          </div>
+      
+      
+      <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2022年04月20日</a>
+</div>
+
+      <p><strong><code>&lt;!--more--&gt;</code></strong></p>
+<p>在文章的开头，先说下NPE问题，NPE问题就是，我们在开发中经常碰到的NullPointerException.假设我们有两个类，他们的UML类图如下图所示</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/LsuwBn"><img data-fancybox="gallery" src="https://s1.ax1x.com/2022/04/20/LsuwBn.png" alt="LsuwBn.png" data-caption="LsuwBn.png" loading="lazy"></a></p>
+<p>在这种情况下，有如下代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user.getAddress().getProvince();</span><br></pre></td></tr></table></figure>
+
+<p>这种写法，在user为null时，是有可能报NullPointerException异常的。为了解决这个问题，于是采用下面的写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(user!=<span class="literal">null</span>)&#123;</span><br><span class="line">    <span class="type">Address</span> <span class="variable">address</span> <span class="operator">=</span> user.getAddress();</span><br><span class="line">    <span class="keyword">if</span>(address!=<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">province</span> <span class="operator">=</span> address.getProvince();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种写法是比较丑陋的，为了避免上述丑陋的写法，让丑陋的设计变得优雅。JAVA8提供了Optional类来优化这种写法，接下来的正文部分进行详细说明</p>
+<h3 id="API介绍"><a href="#API介绍" class="headerlink" title="API介绍"></a>API介绍</h3><p>先介绍一下API，与其他文章不同的是，本文采取类比的方式来讲，同时结合源码。而不像其他文章一样，一个个API罗列出来，让人找不到重点。</p>
+<h4 id="1、Optional-T-value-empty-of-T-value-ofNullable-T-value"><a href="#1、Optional-T-value-empty-of-T-value-ofNullable-T-value" class="headerlink" title="1、Optional(T value),empty(),of(T value),ofNullable(T value)"></a>1、Optional(T value),empty(),of(T value),ofNullable(T value)</h4><p>这四个函数之间具有相关性，因此放在一组进行记忆。</p>
+<p>先说明一下，<code>Optional(T value)</code>，即构造函数，它是private权限的，不能由外部调用的。其余三个函数是public权限，供我们所调用。那么，Optional的本质，就是内部储存了一个真实的值，在构造的时候，就直接判断其值是否为空。好吧，这么说还是比较抽象。直接上<code>Optional(T value)</code>构造函数的源码，如下图所示</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/L617nS"><img data-fancybox="gallery" src="https://s1.ax1x.com/2022/04/21/L617nS.png" alt="L617nS.png" data-caption="L617nS.png" loading="lazy"></a></p>
+<p>那么，of(T value)的源码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; Optional&lt;T&gt; <span class="title function_">of</span><span class="params">(T value)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Optional</span>&lt;&gt;(value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是说of(T value)函数内部调用了构造函数。根据构造函数的源码我们可以得出两个结论:</p>
+<ul>
+<li>通过<code>of(T value)</code>函数所构造出的Optional对象，当Value值为空时，依然会报NullPointerException。</li>
+<li>通过<code>of(T value)</code>函数所构造出的Optional对象，当Value值不为空时，能正常构造Optional对象。</li>
+</ul>
+<p>除此之外呢，Optional类内部还维护一个value为null的对象，大概就是长下面这样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Optional</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">//省略....</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Optional&lt;?&gt; EMPTY = <span class="keyword">new</span> <span class="title class_">Optional</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Optional</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.value = <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//省略...</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span>&lt;T&gt; Optional&lt;T&gt; <span class="title function_">empty</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">        Optional&lt;T&gt; t = (Optional&lt;T&gt;) EMPTY;</span><br><span class="line">        <span class="keyword">return</span> t;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么，<code>empty（）</code>的作用就是返回EMPTY对象。</p>
+<p>好了铺垫了这么多，可以说<code>ofNullable(T value)</code>的作用了，上源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; Optional&lt;T&gt; <span class="title function_">ofNullable</span><span class="params">(T value)</span> &#123;</span><br><span class="line">    <span class="type">return</span> <span class="variable">value</span> <span class="operator">=</span>= <span class="literal">null</span> ? empty() : of(value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好吧，大家应该都看得懂什么意思了。相比较<code>of(T value)</code>的区别就是，当value值为null时，of(T value)会报NullPointerException异常；<code>ofNullable(T value)</code>不会throw Exception，<code>ofNullable(T value)</code>直接返回一个<code>EMPTY</code>对象。</p>
+<p>那是不是意味着，我们在项目中只用<code>ofNullable</code>函数而不用of函数呢?</p>
+<p>不是的，一个东西存在那么自然有存在的价值。当我们在运行过程中，不想隐藏<code>NullPointerException</code>。而是要立即报告，这种情况下就用Of函数。但是不得不承认，这样的场景真的很少。博主也仅在写junit测试用例中用到过此函数。</p>
+<h4 id="2、orElse-T-other-，orElseGet-Supplier-other-和orElseThrow-Supplier-exceptionSupplier"><a href="#2、orElse-T-other-，orElseGet-Supplier-other-和orElseThrow-Supplier-exceptionSupplier" class="headerlink" title="2、orElse(T other)，orElseGet(Supplier other)和orElseThrow(Supplier exceptionSupplier)"></a>2、orElse(T other)，orElseGet(Supplier other)和orElseThrow(Supplier exceptionSupplier)</h4><p>这三个函数放一组进行记忆，都是在构造函数传入的value值为null时，进行调用的。<code>orElse</code>和<code>orElseGet</code>的用法如下所示，相当于value值为null时，给予一个默认值:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    user = Optional.ofNullable(user).orElse(createUser());</span><br><span class="line">    user = Optional.ofNullable(user).orElseGet(() -&gt; createUser());</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> User <span class="title function_">createUser</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">    user.setName(<span class="string">&quot;zhangsan&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这两个函数的区别：当user值不为null时，<code>orElse</code>函数依然会执行createUser()方法，而<code>orElseGet</code>函数并不会执行createUser()方法，大家可自行测试。</p>
+<p>至于orElseThrow，就是value值为null时,直接抛一个异常出去，用法如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">Optional.ofNullable(user).orElseThrow(()-&gt;<span class="keyword">new</span> <span class="title class_">Exception</span>(<span class="string">&quot;用户不存在&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<h4 id="3、map-Function-mapper-和flatMap-Function-gt-mapper"><a href="#3、map-Function-mapper-和flatMap-Function-gt-mapper" class="headerlink" title="3、map(Function mapper)和flatMap(Function&gt; mapper)"></a><code>3、map(Function mapper)和flatMap(Function&gt; mapper)</code></h4><p>这两个函数放在一组记忆，这两个函数做的是转换值的操作。</p>
+<p>直接上源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Optional</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">//省略....</span></span><br><span class="line">     <span class="keyword">public</span>&lt;U&gt; Optional&lt;U&gt; <span class="title function_">map</span><span class="params">(Function&lt;? <span class="built_in">super</span> T, ? extends U&gt; mapper)</span> &#123;</span><br><span class="line">        Objects.requireNonNull(mapper);</span><br><span class="line">        <span class="keyword">if</span> (!isPresent())</span><br><span class="line">            <span class="keyword">return</span> empty();</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> Optional.ofNullable(mapper.apply(value));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//省略...</span></span><br><span class="line">     <span class="keyword">public</span>&lt;U&gt; Optional&lt;U&gt; <span class="title function_">flatMap</span><span class="params">(Function&lt;? <span class="built_in">super</span> T, Optional&lt;U&gt;&gt; mapper)</span> &#123;</span><br><span class="line">        Objects.requireNonNull(mapper);</span><br><span class="line">        <span class="keyword">if</span> (!isPresent())</span><br><span class="line">            <span class="keyword">return</span> empty();</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> Objects.requireNonNull(mapper.apply(value));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这两个函数，在函数体上没什么区别。唯一区别的就是入参，map函数所接受的入参类型为<code>Function&lt;? super T, ? extends U&gt;</code>，而flapMap的入参类型为<code>Function&lt;? super T, Optional&lt;U&gt;&gt;</code>。</p>
+<p>在具体用法上，对于map而言：</p>
+<p>如果User结构是下面这样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候取name的写法如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">city</span> <span class="operator">=</span> Optional.ofNullable(user).map(u-&gt; u.getName()).get();</span><br></pre></td></tr></table></figure>
+
+<p>对于flatMap而言:</p>
+<p>如果User结构是下面这样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">public</span> Optional&lt;String&gt; <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Optional.ofNullable(name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候取name的写法如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">city</span> <span class="operator">=</span> Optional.ofNullable(user).flatMap(u-&gt; u.getName()).get();</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、isPresent-和ifPresent-Consumer-consumer"><a href="#4、isPresent-和ifPresent-Consumer-consumer" class="headerlink" title="4、isPresent()和ifPresent(Consumer consumer)"></a>4、isPresent()和ifPresent(Consumer consumer)</h4><p>这两个函数放在一起记忆，<code>isPresent</code>即判断value值是否为空，而<code>ifPresent</code>就是在value值不为空时，做一些操作。这两个函数的源码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Optional</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">//省略....</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isPresent</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> value != <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//省略...</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">ifPresent</span><span class="params">(Consumer&lt;? <span class="built_in">super</span> T&gt; consumer)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (value != <span class="literal">null</span>)</span><br><span class="line">            consumer.accept(value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要额外说明的是，大家千万不要把</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (user != <span class="literal">null</span>)&#123;</span><br><span class="line">   <span class="comment">// <span class="doctag">TODO:</span> do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>给写成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> Optional.ofNullable(user);</span><br><span class="line"><span class="keyword">if</span> (Optional.isPresent())&#123;</span><br><span class="line">   <span class="comment">// <span class="doctag">TODO:</span> do something</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为这样写，代码结构依然丑陋。博主会在后面给出正确写法</p>
+<p>至于<code>ifPresent(Consumer&lt;? super T&gt; consumer)</code>，用法也很简单，如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Optional.ofNullable(user).ifPresent(u-&gt;&#123;</span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> do something</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="5、filter-Predicate-predicate"><a href="#5、filter-Predicate-predicate" class="headerlink" title="5、filter(Predicate predicate)"></a>5、filter(Predicate predicate)</h4><p>不多说，直接上源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Optional</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="comment">//省略....</span></span><br><span class="line">   Objects.requireNonNull(predicate);</span><br><span class="line">        <span class="keyword">if</span> (!isPresent())</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> predicate.test(value) ? <span class="built_in">this</span> : empty();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>filter 方法接受一个 <code>Predicate</code> 来对 <code>Optional</code> 中包含的值进行过滤，如果包含的值满足条件，那么还是返回这个 Optional；否则返回 <code>Optional.empty</code>。</p>
+<p>用法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Optional&lt;User&gt; user1 = Optional.ofNullable(user).filter(u -&gt; u.getName().length()&lt;<span class="number">6</span>);</span><br></pre></td></tr></table></figure>
+
+<p>如上所示，如果user的name的长度是小于6的，则返回。如果是大于6的，则返回一个EMPTY对象。</p>
+<h2 id="实战使用"><a href="#实战使用" class="headerlink" title="实战使用"></a><strong>实战使用</strong></h2><h4 id="例一"><a href="#例一" class="headerlink" title="例一"></a>例一</h4><p>在函数方法中</p>
+<p>以前写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">getCity</span><span class="params">(User user)</span>  <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="keyword">if</span>(user!=<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span>(user.getAddress()!=<span class="literal">null</span>)&#123;</span><br><span class="line">                <span class="type">Address</span> <span class="variable">address</span> <span class="operator">=</span> user.getAddress();</span><br><span class="line">                <span class="keyword">if</span>(address.getCity()!=<span class="literal">null</span>)&#123;</span><br><span class="line">                    <span class="keyword">return</span> address.getCity();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Excpetion</span>(<span class="string">&quot;取值错误&quot;</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>JAVA8写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">getCity</span><span class="params">(User user)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">    <span class="keyword">return</span> Optional.ofNullable(user)</span><br><span class="line">                   .map(u-&gt; u.getAddress())</span><br><span class="line">                   .map(a-&gt;a.getCity())</span><br><span class="line">                   .orElseThrow(()-&gt;<span class="keyword">new</span> <span class="title class_">Exception</span>(<span class="string">&quot;取指错误&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="例二"><a href="#例二" class="headerlink" title="例二"></a>例二</h4><p>比如，在主程序中</p>
+<p>以前写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(user!=<span class="literal">null</span>)&#123;</span><br><span class="line">    dosomething(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JAVA8写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> Optional.ofNullable(user)</span><br><span class="line">    .ifPresent(u-&gt;&#123;</span><br><span class="line">        dosomething(u);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h4 id="例三"><a href="#例三" class="headerlink" title="例三"></a>例三</h4><p>以前写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> User <span class="title function_">getUser</span><span class="params">(User user)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">    <span class="keyword">if</span>(user!=<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> user.getName();</span><br><span class="line">        <span class="keyword">if</span>(<span class="string">&quot;zhangsan&quot;</span>.equals(name))&#123;</span><br><span class="line">            <span class="keyword">return</span> user;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        user = <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.setName(<span class="string">&quot;zhangsan&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>java8写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> User <span class="title function_">getUser</span><span class="params">(User user)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Optional.ofNullable(user)</span><br><span class="line">                   .filter(u-&gt;<span class="string">&quot;zhangsan&quot;</span>.equals(u.getName()))</span><br><span class="line">                   .orElseGet(()-&gt; &#123;</span><br><span class="line">                        <span class="type">User</span> <span class="variable">user1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">                        user1.setName(<span class="string">&quot;zhangsan&quot;</span>);</span><br><span class="line">                        <span class="keyword">return</span> user1;</span><br><span class="line">                   &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其他的例子，不一一列举了。不过采用这种链式编程，虽然代码优雅了。但是，逻辑性没那么明显，可读性有所降低，大家项目中看情况酌情使用。</p>
+
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>本文作者：</strong>Liu Hao<br>
+        <strong>本文链接：</strong><a href="http://zutlh.top/2022/04/20/newpapername/" title="http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;04&#x2F;20&#x2F;newpapername&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;04&#x2F;20&#x2F;newpapername&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+        
+    </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
+    
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Java/" rel="tag">Java</a>
+    
+</div>
+
+  
+      <div class="nexmoe-post-footer">
+          <section class="nexmoe-comment">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.css">
+<div id="gitalk"></div>
+<script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '80b2453b6d5f37ad6225',
+        clientSecret: '43e99fa852795c9a7b3eb924b2558c64b84bbdeb',
+        id: window.location.pathname,
+        repo: 'nexmoe.github.io',
+        owner: 'nexmoe',
+        admin: 'nexmoe'
+    })
+    gitalk.render('gitalk')
+</script>
+</section>
+      </div>
+  
+</div>
+            <div class="nexmoe-post-right">
+              <div class="nexmoe-fixed">
+                  <div class="nexmoe-tool"> 
+                    
+                      
+                    
+                      <a href="#nexmoe-content" class="toc-link" aria-label="回到顶部" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
+                  </div>
+              </div>
+            </div>
+        </div>
+    </div>
+     
+    <div id="nexmoe-search-space">
+        <div class="search-container">
+            <div class="search-header">
+                <div class="search-input-container">
+                    <input class="search-input" type="text" placeholder="搜索" oninput="sinput();">
+                </div>
+                <a class="search-close" onclick="sclose();">×</a>
+            </div>
+            <div class="search-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js?v=1"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+ 
+
+<script async src="/js/app.js?v=1650531382912"></script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js"></script>
+<script>
+	$(".justified-gallery").justifiedGallery({
+		rowHeight: 160,
+		margins: 10,
+	});
+</script>
+
+
+    
+
+
+
+
+
+</body>
+
+</html>
