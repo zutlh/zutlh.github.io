@@ -4,7 +4,7 @@
 
 <head>
     
-    <title>文章归档：2022/4 - 山海经</title>
+    <title>polymorphic - 山海经</title>
     <meta charset="UTF-8">
     <meta name="keywords" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
@@ -12,14 +12,17 @@
     
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <meta name="description" content="记录身边的贵物">
-<meta property="og:type" content="website">
-<meta property="og:title" content="山海经">
-<meta property="og:url" content="http://zutlh.top/archives/2022/04/index.html">
+    <meta name="description" content="方法调用绑定12345public static void tune(Instrument i);public class Instrument&amp;#123;&amp;#125;public class Wind extends Instrument&amp;#123;&amp;#125;public class Guitar extends Instrument&amp;#123;&amp;#125;  tune接收一个Instrume">
+<meta property="og:type" content="article">
+<meta property="og:title" content="polymorphic">
+<meta property="og:url" content="http://zutlh.top/2022/04/29/polymorphic/index.html">
 <meta property="og:site_name" content="山海经">
-<meta property="og:description" content="记录身边的贵物">
+<meta property="og:description" content="方法调用绑定12345public static void tune(Instrument i);public class Instrument&amp;#123;&amp;#125;public class Wind extends Instrument&amp;#123;&amp;#125;public class Guitar extends Instrument&amp;#123;&amp;#125;  tune接收一个Instrume">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-29T06:01:41.000Z">
+<meta property="article:modified_time" content="2022-04-29T06:34:12.544Z">
 <meta property="article:author" content="Liu Hao">
+<meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
     <link
         rel="stylesheet"
@@ -30,9 +33,9 @@
         href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"
     />
     
-    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1651225025183">
-    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1651225025183">
-    <link rel="stylesheet" href="/css/style.css?v=1651225025183">
+    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1651225025167">
+    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1651225025167">
+    <link rel="stylesheet" href="/css/style.css?v=1651225025167">
      
     
 <meta name="generator" content="Hexo 6.1.0"></head>
@@ -133,79 +136,72 @@
     </div>
     <div id="nexmoe-content">
         <div class="nexmoe-primary">
-            <section class="nexmoe-posts">
-    
-    <div class="nexmoe-post">
-        <a href="/2022/04/29/polymorphic/">
-            
-                <div class="nexmoe-post-cover mdui-ripple" style="padding-bottom: 66.66666666666666%;"> 
-                    <img src="https://s1.ax1x.com/2022/04/26/LHnFpT.jpg" alt="polymorphic" loading="lazy">
-                    <h1>polymorphic</h1>
-                </div>
-            
-        </a>
+            <div class="nexmoe-post">
 
-        <div class="nexmoe-post-meta nexmoe-rainbow">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2022年04月29日</a>
-            
-            
-                <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Java/" rel="tag">Java</a>
-            
-        </div>
+  <article>
+      
+          <div class="nexmoe-post-cover" style="padding-bottom: 66.66666666666666%;"> 
+              <img data-fancybox="gallery" src="https://s1.ax1x.com/2022/04/26/LHnFpT.jpg" alt="polymorphic" loading="lazy">
+              <h1>polymorphic</h1>
+          </div>
+      
+      
+      <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
+    <a><i class="nexmoefont icon-calendar-fill"></i>2022年04月29日</a>
+</div>
 
-        <article>
-            
-        </article>
+      <h3 id="方法调用绑定"><a href="#方法调用绑定" class="headerlink" title="方法调用绑定"></a>方法调用绑定</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">tune</span><span class="hljs-params">(Instrument i)</span>;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Instrument</span>&#123;&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Wind</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Instrument</span>&#123;&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Guitar</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Instrument</span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>tune接收一个Instrument的引用。那么在这种情况下，编译器怎么才能知道这个Instrument引用指向的是Wind对象，而不是Guitar对象呢？实际上，编译器无法得知。</p>
+<p>​    将一个方法调用同一个方法主体关联起来被称作绑定。若在程序执行前进行绑定（如果有的话，由编译器和连接程序实现），叫做前期绑定。读者可能以前没有听说过这个术语，因为它是面向过程的语言中不需要选择就默认的绑定方式。例如，C只有一种方法调用，那就是前期绑定。</p>
+<p>​    上述程序之所以令人迷惑，主要是因为前期绑定。因为，当编译器只有一个Instrument引用时，它无法知道究竟调用哪个方法才对。</p>
+<p>​    解决的办法就是后期绑定，它的含义就是在运行时根据对象的类型进行绑定。后期绑定也叫做动态绑定或运行时绑定。如果一种语言想实现后期绑定，就必须具有某种机制，以便在运行时能判断对象的类型，从而调用恰当的方法。也就是说，编译器一直不知道对象的类型，但在方法调用机制能找到正确的方法体，并加以调用。后期绑定机制随编程语言的不同而有所不同，但是只要想一下就会得知，不管怎样都必须在对象中安置某种“类型信息”。</p>
+<p>​    Java中除了static方法和final方法（private方法也属于final方法）之外，其他所有的方法都是后期绑定。这意味着通常情况下，我们不必判定是否应该进行后期绑定——他会自动发生。</p>
+<p>​    为什么要将某个方法声明为final呢？正如之前提到的那样，它可以防止其他人覆盖该方法。但更重要的一点或许是：这样做可以有效地“关闭”动态绑定，或者说，告诉编译器不需要对其进行动态绑定。这样，编译器就可以为final方法调用生成更有效的代码。然而，大多数情况下，这样做对程序的整体性能不会有什么改观。所以，最好根据设计来决定是否使用final，而不是出于试图提高性能的目的来使用final。</p>
+
+  </article>
+
+  
+      
+    <div class="nexmoe-post-copyright">
+        <strong>本文作者：</strong>Liu Hao<br>
+        <strong>本文链接：</strong><a href="http://zutlh.top/2022/04/29/polymorphic/" title="http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;04&#x2F;29&#x2F;polymorphic&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;04&#x2F;29&#x2F;polymorphic&#x2F;</a><br>
+        
+            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
+        
     </div>
+
+
+  
+  
+  <div class="nexmoe-post-meta nexmoe-rainbow">
     
-    <div class="nexmoe-post">
-        <a href="/2022/04/22/finalandstatic/">
-            
-                <div class="nexmoe-post-cover mdui-ripple" style="padding-bottom: NaN%;"> 
-                    <img src="https://s1.ax1x.com/2022/04/28/LOTELQ.jpg" alt="final和static关键字" loading="lazy">
-                    <h1>final和static关键字</h1>
-                </div>
-            
-        </a>
-
-        <div class="nexmoe-post-meta nexmoe-rainbow">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2022年04月22日</a>
-            
-            
-                <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Java/" rel="tag">Java</a>
-            
-        </div>
-
-        <article>
-            
-        </article>
-    </div>
     
-    <div class="nexmoe-post">
-        <a href="/2022/04/20/newpapername/">
-            
-                <div class="nexmoe-post-cover mdui-ripple" style="padding-bottom: 66.66666666666666%;"> 
-                    <img src="https://s1.ax1x.com/2022/04/26/LHnFpT.jpg" alt="Optional详解" loading="lazy">
-                    <h1>Optional详解</h1>
-                </div>
-            
-        </a>
-
-        <div class="nexmoe-post-meta nexmoe-rainbow">
-            <a><i class="nexmoefont icon-calendar-fill"></i>2022年04月20日</a>
-            
-            
-                <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Java/" rel="tag">Java</a>
-            
-        </div>
-
-        <article>
-            
-        </article>
-    </div>
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Java/" rel="tag">Java</a>
     
+</div>
+
+  
+      <div class="nexmoe-post-footer">
+          <section class="nexmoe-comment">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.css">
+<div id="gitalk"></div>
+<script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+    var gitalk = new Gitalk({
+        clientID: '80b2453b6d5f37ad6225',
+        clientSecret: '43e99fa852795c9a7b3eb924b2558c64b84bbdeb',
+        id: window.location.pathname,
+        repo: 'nexmoe.github.io',
+        owner: 'nexmoe',
+        admin: 'nexmoe'
+    })
+    gitalk.render('gitalk')
+</script>
 </section>
-
+      </div>
+  
+</div>
             <div class="nexmoe-post-right">
               <div class="nexmoe-fixed">
                   <div class="nexmoe-tool"> 
@@ -237,7 +233,7 @@
 
  
 
-<script async src="/js/app.js?v=1651225025184"></script>
+<script async src="/js/app.js?v=1651225025168"></script>
 
 
 
