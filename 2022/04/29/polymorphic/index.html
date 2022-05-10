@@ -4,7 +4,7 @@
 
 <head>
     
-    <title>polymorphic - 山海经</title>
+    <title>多态 - 山海经</title>
     <meta charset="UTF-8">
     <meta name="keywords" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
@@ -14,16 +14,18 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <meta name="description" content="方法调用绑定12345public static void tune(Instrument i);public class Instrument&amp;#123;&amp;#125;public class Wind extends Instrument&amp;#123;&amp;#125;public class Guitar extends Instrument&amp;#123;&amp;#125;  tune接收一个Instrume">
 <meta property="og:type" content="article">
-<meta property="og:title" content="polymorphic">
+<meta property="og:title" content="多态">
 <meta property="og:url" content="http://zutlh.top/2022/04/29/polymorphic/index.html">
 <meta property="og:site_name" content="山海经">
 <meta property="og:description" content="方法调用绑定12345public static void tune(Instrument i);public class Instrument&amp;#123;&amp;#125;public class Wind extends Instrument&amp;#123;&amp;#125;public class Guitar extends Instrument&amp;#123;&amp;#125;  tune接收一个Instrume">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2022/05/10/OYr5mq.png">
 <meta property="article:published_time" content="2022-04-29T06:01:41.000Z">
-<meta property="article:modified_time" content="2022-04-29T06:34:12.544Z">
+<meta property="article:modified_time" content="2022-05-10T07:05:49.941Z">
 <meta property="article:author" content="Liu Hao">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2022/05/10/OYr5mq.png">
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
@@ -33,9 +35,9 @@
         href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"
     />
     
-    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1651225025167">
-    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1651225025167">
-    <link rel="stylesheet" href="/css/style.css?v=1651225025167">
+    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1652168814730">
+    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1652168814730">
+    <link rel="stylesheet" href="/css/style.css?v=1652168814730">
      
     
 <meta name="generator" content="Hexo 6.1.0"></head>
@@ -141,8 +143,8 @@
   <article>
       
           <div class="nexmoe-post-cover" style="padding-bottom: 66.66666666666666%;"> 
-              <img data-fancybox="gallery" src="https://s1.ax1x.com/2022/04/26/LHnFpT.jpg" alt="polymorphic" loading="lazy">
-              <h1>polymorphic</h1>
+              <img data-fancybox="gallery" src="https://s1.ax1x.com/2022/04/26/LHnFpT.jpg" alt="多态" loading="lazy">
+              <h1>多态</h1>
           </div>
       
       
@@ -158,6 +160,28 @@
 <p>​    解决的办法就是后期绑定，它的含义就是在运行时根据对象的类型进行绑定。后期绑定也叫做动态绑定或运行时绑定。如果一种语言想实现后期绑定，就必须具有某种机制，以便在运行时能判断对象的类型，从而调用恰当的方法。也就是说，编译器一直不知道对象的类型，但在方法调用机制能找到正确的方法体，并加以调用。后期绑定机制随编程语言的不同而有所不同，但是只要想一下就会得知，不管怎样都必须在对象中安置某种“类型信息”。</p>
 <p>​    Java中除了static方法和final方法（private方法也属于final方法）之外，其他所有的方法都是后期绑定。这意味着通常情况下，我们不必判定是否应该进行后期绑定——他会自动发生。</p>
 <p>​    为什么要将某个方法声明为final呢？正如之前提到的那样，它可以防止其他人覆盖该方法。但更重要的一点或许是：这样做可以有效地“关闭”动态绑定，或者说，告诉编译器不需要对其进行动态绑定。这样，编译器就可以为final方法调用生成更有效的代码。然而，大多数情况下，这样做对程序的整体性能不会有什么改观。所以，最好根据设计来决定是否使用final，而不是出于试图提高性能的目的来使用final。</p>
+<h3 id="产生正确的行为"><a href="#产生正确的行为" class="headerlink" title="产生正确的行为"></a>产生正确的行为</h3><p>​    一旦知道Java中所有方法都是通过动态绑定实现多态这个事实之后，我们就可以编写只与基类打交道的代码了，并且这些 代码对所有的导出类都可以正确运行。或者换一种说法，发送消息给某个对象，让该对象去断定应该做什么事。</p>
+<p>​    面向对象程序设计中，有一个经典的例子就是“几何形状”(shape)。因为它很直观，所以经常用到。</p>
+<p>​    在“几何形状”这个例子中，有一个基类shape，以及多个导出类——如Circle、Square、Triangle等。这个例子之所以好用，是因为我们可以说“圆是一种几何形状”。</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/OYr5mq"><img data-fancybox="gallery" src="https://s1.ax1x.com/2022/05/10/OYr5mq.png" alt="OYr5mq.png" data-caption="OYr5mq.png" loading="lazy"></a></p>
+<p>向上转型可以像下面这条语句这么简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Shape</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Circle</span>();<br></code></pre></td></tr></table></figure>
+
+<p>这里，创建了一个Circle对象，并把得到的引用立即赋值给Shape，这样看似错误，但实际上是没问题的。因为通过继承，Circle就是一种Shape。</p>
+<p>​    假设你调用一个基类方法(它已在导出类被覆盖):</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">s.draw();<br></code></pre></td></tr></table></figure>
+
+<p>你可能再次认为调用的是Shape的draw(),因为这毕竟是一个Shape引用，那么编辑器是怎么知道</p>
+<p>去做其他事情呢？由于后期绑定（多态），还是正确调用了Circle.draw()方法。</p>
+<p>​    下面的例子稍微有所不同：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Shape</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>&#123;&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">erase</span><span class="hljs-params">()</span>&#123;&#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Circle</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Shape</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>&#123;	print(<span class="hljs-string">&quot;Circle.draw&quot;</span>)&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">erase</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Circle.erase&quot;</span>)&#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Square</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Shape</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Square.draw&quot;</span>)&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">erase</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Square.erase&quot;</span>)&#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Triangle</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Shape</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Triangle.draw&quot;</span>)&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">erase</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Triangle.erase&quot;</span>)&#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RandomShapeGenerator</span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">Random</span> <span class="hljs-variable">rand</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Random</span>(<span class="hljs-number">47</span>);<br>    <span class="hljs-keyword">public</span> shape <span class="hljs-title function_">next</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">switch</span>(rand.nextInt(<span class="hljs-number">3</span>))&#123;<br>            <span class="hljs-keyword">default</span>:<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">0</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Circle</span>();<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Square</span>();<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Triangle</span>();<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Shapes</span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">RandomShapeGenerator</span> <span class="hljs-variable">gen</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RandomShapeGenerator</span>();<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>        Shape[] s = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Shape</span>[<span class="hljs-number">9</span>];<br>       	<span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;i&lt;s.length;i++)<br>            s[i] = gen.next();<br>        <span class="hljs-keyword">for</span>(Shape shp: s)<br>            shp.draw();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​    Shape基类为自它那里继承而来的所有导出类建立了一个公共接口——也就是说，所有形状都可以描绘和擦除。导出类通过覆盖这些定义，来为每种特殊类型的几何形状提供单独的行为。</p>
+<p>​    RandomShapeGenerator是一种“工厂”(factory)，在我们每次调用next()方法时，它可以为随机选择的Shape对象产生一个引用。请注意向上转型时在return语句里发生的。每个return语句取得一个指向某个Circle、Square或者Triangle的引用，并将其以Shape类型从next()方法中发送出去。所以无论我们在什么时候调用next()方法时，是绝对不可能知道具体类型到底是什么的，因为我们总是只能获得一个通用的Shape引用。</p>
+<p>​    main()包含了一个Shape引用组成的数组，通过调用RandomShapeGenerator.next()来填入数据。此时，我们只知道自己拥有一些Shape，除此之外不会知道更具体的情况(编译器也不知道)。然而，当我们遍历这个数组，并为每个数组元素调用draw()方法时，与类型有关的特定行为为神器的发生，我们可以从运行该程序时所产生的输出结果中发现这一点。</p>
+<p>​    随机选择几何形状是为了让大家理解：在编译时，编译器不需要获得任何特殊信息就能进行正确的调用。对draw()方法的所有调用都是通过动态绑定进行的。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>​    多态意味着“不同的形式”。在面向对象的程序设计中，我们持有从基类继承而来的相同接口，以及使用该接口的不同形式：不同版本的动态绑定方法。</p>
+<p>​    在本章中我们已经知道，如果不运用数据抽象和继承，就不可能理解或者甚至不可能创建多态的例子。多态是一种不能单独来看待的特性，相反它只能作为类关系“全景”中的一部分，与其他特性协同工作。</p>
 
   </article>
 
@@ -233,7 +257,7 @@
 
  
 
-<script async src="/js/app.js?v=1651225025168"></script>
+<script async src="/js/app.js?v=1652168814731"></script>
 
 
 
