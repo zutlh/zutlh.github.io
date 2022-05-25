@@ -4,7 +4,7 @@
 
 <head>
     
-    <title>每天一个知识点(一) - 山海经</title>
+    <title>浅谈parallelStream - 山海经</title>
     <meta charset="UTF-8">
     <meta name="keywords" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
@@ -12,15 +12,15 @@
     
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <meta name="description" content="关于Java中子类是否可以访问父类的私有属性首先从子类是否可以继承父类的私有属性来看： 从继承的概念来说，private和final不被继承。Java官方文档上是这么说的。 从内存的角度来说，父类的一切都被继承（从父类构造方法被调用就知道了，因为new一个对象，就会调用构造方法，子类被new的时候就会调用父类的构造方法，所以从内存的角度来说，子类拥有一个完整的父类）。子类对象所引用的内存有父类变量">
+    <meta name="description" content="了解parallelStream的作用与理解Stream 就如同一个迭代器（Iterator），单向，不可往复，数据只能遍历一次，遍历过一次后即用尽了，就好比流水从面前流过，一去不复返。 而和迭代器又不同的是，Stream 可以并行化操作，迭代器只能命令式地、串行化操作。顾名思义，当使用串行方式去遍历时，每个 item 读完后再读下一个 item。而使用并行去遍历时，数据会被分成多个段，其中每一个">
 <meta property="og:type" content="article">
-<meta property="og:title" content="每天一个知识点(一)">
-<meta property="og:url" content="http://zutlh.top/2022/05/23/learnKnowledgeday1/index.html">
+<meta property="og:title" content="浅谈parallelStream">
+<meta property="og:url" content="http://zutlh.top/2022/05/24/parallelStream/index.html">
 <meta property="og:site_name" content="山海经">
-<meta property="og:description" content="关于Java中子类是否可以访问父类的私有属性首先从子类是否可以继承父类的私有属性来看： 从继承的概念来说，private和final不被继承。Java官方文档上是这么说的。 从内存的角度来说，父类的一切都被继承（从父类构造方法被调用就知道了，因为new一个对象，就会调用构造方法，子类被new的时候就会调用父类的构造方法，所以从内存的角度来说，子类拥有一个完整的父类）。子类对象所引用的内存有父类变量">
+<meta property="og:description" content="了解parallelStream的作用与理解Stream 就如同一个迭代器（Iterator），单向，不可往复，数据只能遍历一次，遍历过一次后即用尽了，就好比流水从面前流过，一去不复返。 而和迭代器又不同的是，Stream 可以并行化操作，迭代器只能命令式地、串行化操作。顾名思义，当使用串行方式去遍历时，每个 item 读完后再读下一个 item。而使用并行去遍历时，数据会被分成多个段，其中每一个">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-05-23T06:05:09.000Z">
-<meta property="article:modified_time" content="2022-05-23T06:20:41.101Z">
+<meta property="article:published_time" content="2022-05-24T02:14:40.000Z">
+<meta property="article:modified_time" content="2022-05-25T08:35:44.972Z">
 <meta property="article:author" content="Liu Hao">
 <meta property="article:tag" content="learnKnowledge">
 <meta name="twitter:card" content="summary">
@@ -33,9 +33,9 @@
         href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"
     />
     
-    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1653467788599">
-    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1653467788599">
-    <link rel="stylesheet" href="/css/style.css?v=1653467788599">
+    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1653467788597">
+    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1653467788597">
+    <link rel="stylesheet" href="/css/style.css?v=1653467788597">
      
     
 <meta name="generator" content="Hexo 6.1.0"></head>
@@ -141,28 +141,24 @@
   <article>
       
           <div class="nexmoe-post-cover" style="padding-bottom: 66.66666666666666%;"> 
-              <img data-fancybox="gallery" src="https://s1.ax1x.com/2022/04/28/LOTELQ.jpg" alt="每天一个知识点(一)" loading="lazy">
-              <h1>每天一个知识点(一)</h1>
+              <img data-fancybox="gallery" src="https://s1.ax1x.com/2022/04/28/LOTELQ.jpg" alt="浅谈parallelStream" loading="lazy">
+              <h1>浅谈parallelStream</h1>
           </div>
       
       
       <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
-    <a><i class="nexmoefont icon-calendar-fill"></i>2022年05月23日</a>
+    <a><i class="nexmoefont icon-calendar-fill"></i>2022年05月24日</a>
 </div>
 
-      <h3 id="关于Java中子类是否可以访问父类的私有属性"><a href="#关于Java中子类是否可以访问父类的私有属性" class="headerlink" title="关于Java中子类是否可以访问父类的私有属性"></a>关于Java中子类是否可以访问父类的私有属性</h3><p>首先从子类是否可以继承父类的私有属性来看：</p>
-<p><strong>从继承的概念来说</strong>，<code>private</code>和<code>final</code>不被继承。Java官方文档上是这么说的。</p>
-<p><strong>从内存的角度来说</strong>，父类的一切都被继承（从父类构造方法被调用就知道了，因为new一个对象，就会调用构造方法，子类被new的时候就会调用父类的构造方法，所以从内存的角度来说，子类拥有一个完整的父类）。子类对象所引用的内存有父类变量的一份拷贝。</p>
-<p>那么子类是否可以访问父类的私有属性呢？</p>
-<p>如果父类中有对私有属性的get和set的方法，而且是public的修饰的方法，</p>
-<p>子类在继承父类的同时，也继承了带有public修饰的set和get方法，所以可以通过以下方式子类可以访问到父类的私有属性。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> test;<br> <br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span>&#123;<br>	<span class="hljs-keyword">private</span> String name;<br>	<span class="hljs-keyword">public</span> Integer age;<br>	<br>	<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> name;<br>	&#125;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> &#123;<br>		<span class="hljs-built_in">this</span>.name = name;<br>	&#125;<br>	<span class="hljs-keyword">public</span> Integer <span class="hljs-title function_">getAge</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> age;<br>	&#125;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setAge</span><span class="hljs-params">(Integer age)</span> &#123;<br>		<span class="hljs-built_in">this</span>.age = age;<br>	&#125;<br>	<br>	<br>&#125;<br> <br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Person</span>&#123;<br>	<br>&#125;<br> <br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>		<span class="hljs-type">Student</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Student</span>();<br>		<br>		s.age = <span class="hljs-number">12</span>;<br>		s.setName(<span class="hljs-string">&quot;小明&quot;</span>);<br>		<br>		<span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> s.getName();<br>		System.out.println(<span class="hljs-string">&quot;name = &quot;</span>+ name);<br>		<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+      <h3 id="了解parallelStream的作用与理解"><a href="#了解parallelStream的作用与理解" class="headerlink" title="了解parallelStream的作用与理解"></a>了解parallelStream的作用与理解</h3><p>Stream 就如同一个迭代器（Iterator），单向，不可往复，数据只能遍历一次，遍历过一次后即用尽了，就好比流水从面前流过，一去不复返。</p>
+<p>而和迭代器又不同的是，Stream 可以并行化操作，迭代器只能命令式地、串行化操作。顾名思义，当使用串行方式去遍历时，每个 item 读完后再读下一个 item。而使用并行去遍历时，数据会被分成多个段，其中每一个都在不同的线程中处理，然后将结果一起输出。Stream 的并行操作依赖于 Java7 中引入的 Fork&#x2F;Join 框架（JSR166y）来拆分任务和加速处理过程。</p>
+<h4 id="parallelStream是什么"><a href="#parallelStream是什么" class="headerlink" title="parallelStream是什么"></a>parallelStream是什么</h4><p>parallelStream其实就是一个并行执行的流.它通过默认的ForkJoinPool,可能提高你的多线程任务的速度.</p>
+<h4 id="parallelStream的作用"><a href="#parallelStream的作用" class="headerlink" title="parallelStream的作用"></a>parallelStream的作用</h4><p>Stream具有平行处理能力，处理的过程会分而治之，也就是将一个大任务切分成多个小任务，这表示每个任务都是一个操作，因此像以下的程式片段：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">parallelStream</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        List&lt;Integer&gt; integers = Arrays.asList(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>);<br>        integers.parallelStream().forEach(System.out::println);<br>    &#125;<br>&#125;<br><br>output:<br><span class="hljs-number">6</span><br><span class="hljs-number">5</span><br><span class="hljs-number">8</span><br><span class="hljs-number">9</span><br><span class="hljs-number">7</span><br><span class="hljs-number">4</span><br><span class="hljs-number">1</span><br><span class="hljs-number">2</span><br><span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
 
-<p>通过调用子类中从父类那里继承的set和get方法来访问父类中私有属性name。</p>
-<p>但是要记住，子类并非继承到父类的私有属性name，子类只是继承了父类的非私有属性，比如以上例子的 age 属性。</p>
-<p>虽然子类可以通过以上的方法可以访问父类的私有属性，但是在做java题时，一般说子类可以访问父类的私有属性这些说法都是错误的。</p>
-<p>要注意一点，如果父类中没有对私有属性的 get 和 set 方法或者其他对私有属性操作的方法，又或者这些方法都被private修饰，</p>
-<p>这样子类是无法访问到父类的私有属性的。</p>
+<p>你得到的展示顺序不一定会是1、2、3、4、5、6、7、8、9，而可能是任意的顺序，就forEach()这个操作來讲，如果平行处理时，希望最后顺序是按照原来Stream的数据顺序，那可以调用forEachOrdered()。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;Integer&gt; numbers = Arrays.asList(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>);<br>numbers.parallelStream()<br>       .forEachOrdered(out::println);  <br></code></pre></td></tr></table></figure>
+
 
   </article>
 
@@ -170,7 +166,7 @@
       
     <div class="nexmoe-post-copyright">
         <strong>本文作者：</strong>Liu Hao<br>
-        <strong>本文链接：</strong><a href="http://zutlh.top/2022/05/23/learnKnowledgeday1/" title="http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;05&#x2F;23&#x2F;learnKnowledgeday1&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;05&#x2F;23&#x2F;learnKnowledgeday1&#x2F;</a><br>
+        <strong>本文链接：</strong><a href="http://zutlh.top/2022/05/24/parallelStream/" title="http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;05&#x2F;24&#x2F;parallelStream&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;05&#x2F;24&#x2F;parallelStream&#x2F;</a><br>
         
             <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
         
@@ -238,7 +234,7 @@
 
  
 
-<script async src="/js/app.js?v=1653467788599"></script>
+<script async src="/js/app.js?v=1653467788598"></script>
 
 
 
