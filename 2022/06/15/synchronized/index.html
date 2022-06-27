@@ -12,17 +12,23 @@
     
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <meta name="description" content="CAS(compare and swap）CAS(compare and swap),比较并交换。可以解决多线程并行情况下使用锁造成性能损耗的一种机制.CAS 操作包含三个操作数—内存位置（V）、预期原值（A）和新值(B)。如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。一个线程从主内存中得到num值，并对num进行操作，写入值的时候，线程会把第一">
+    <meta name="description" content="CAS(compare and swap）因为synchronized是非公平锁，所以诞生了CAS(compare and swap),比较并交换。可以解决多线程并行情况下使用锁造成性能损耗的一种机制.CAS 操作包含三个操作数—内存位置（V）、预期原值（A）和新值(B)。如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。一个线程从主内存中得到num">
 <meta property="og:type" content="article">
 <meta property="og:title" content="synchronized">
 <meta property="og:url" content="http://zutlh.top/2022/06/15/synchronized/index.html">
 <meta property="og:site_name" content="山海经">
-<meta property="og:description" content="CAS(compare and swap）CAS(compare and swap),比较并交换。可以解决多线程并行情况下使用锁造成性能损耗的一种机制.CAS 操作包含三个操作数—内存位置（V）、预期原值（A）和新值(B)。如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。一个线程从主内存中得到num值，并对num进行操作，写入值的时候，线程会把第一">
+<meta property="og:description" content="CAS(compare and swap）因为synchronized是非公平锁，所以诞生了CAS(compare and swap),比较并交换。可以解决多线程并行情况下使用锁造成性能损耗的一种机制.CAS 操作包含三个操作数—内存位置（V）、预期原值（A）和新值(B)。如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。一个线程从主内存中得到num">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.bmp.ovh/imgs/2022/06/27/f498f52fa4f781cf.png">
+<meta property="og:image" content="https://i.bmp.ovh/imgs/2022/06/27/73f6077bd2a022d1.png">
+<meta property="og:image" content="https://i.bmp.ovh/imgs/2022/06/27/d840af7984eaf558.png">
+<meta property="og:image" content="https://i.bmp.ovh/imgs/2022/06/27/ce73f64932995600.png">
 <meta property="article:published_time" content="2022-06-15T08:28:12.000Z">
-<meta property="article:modified_time" content="2022-06-20T08:43:51.047Z">
+<meta property="article:modified_time" content="2022-06-27T08:29:19.626Z">
 <meta property="article:author" content="Liu Hao">
+<meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.bmp.ovh/imgs/2022/06/27/f498f52fa4f781cf.png">
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
@@ -32,9 +38,9 @@
         href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"
     />
     
-    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1656053435501">
-    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1656053435501">
-    <link rel="stylesheet" href="/css/style.css?v=1656053435501">
+    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1656318589047">
+    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1656318589047">
+    <link rel="stylesheet" href="/css/style.css?v=1656318589047">
      
     
 <meta name="generator" content="Hexo 6.1.0"></head>
@@ -118,7 +124,7 @@
     
   <div class="nexmoe-widget-wrap">
     <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
-      <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/learnKnowledge/" style="font-size: 10px;">learnKnowledge</a>
+      <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/learnKnowledge/" style="font-size: 10px;">learnKnowledge</a>
     </div>
     
   </div>
@@ -149,13 +155,124 @@
     <a><i class="nexmoefont icon-calendar-fill"></i>2022年06月15日</a>
 </div>
 
-      <h2 id="CAS-compare-and-swap）"><a href="#CAS-compare-and-swap）" class="headerlink" title="CAS(compare and swap）"></a>CAS(compare and swap）</h2><p>CAS(compare and swap),比较并交换。可以解决多线程并行情况下使用锁造成性能损耗的一种机制.CAS 操作包含三个操作数—内存位置（V）、预期原值（A）和新值(B)。如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。一个线程从主内存中得到num值，并对num进行操作，写入值的时候，线程会把第一次取到的num值和主内存中num值进行比较，如果相等，就会将改变后的num写入主内存，如果不相等，则一直循环对比，直到成功为止。</p>
+      <h2 id="CAS-compare-and-swap）"><a href="#CAS-compare-and-swap）" class="headerlink" title="CAS(compare and swap）"></a>CAS(compare and swap）</h2><p>因为synchronized是非公平锁，所以诞生了CAS(compare and swap),比较并交换。可以解决多线程并行情况下使用锁造成性能损耗的一种机制.CAS 操作包含三个操作数—内存位置（V）、预期原值（A）和新值(B)。如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。一个线程从主内存中得到num值，并对num进行操作，写入值的时候，线程会把第一次取到的num值和主内存中num值进行比较，如果相等，就会将改变后的num写入主内存，如果不相等，则一直循环对比，直到成功为止。</p>
 <p>但是，如果在某个线程从内存中拿到num值并操作后，写入值之前有另外一个线程也对num进行cas操作，则不能保证数据一致性，所以在比较和写入这两个操作必须要是原子操作。为了实现原子性，则需要lock指令。</p>
 <p>lock代表有任何一个cpu在访问这块内存的时候，进行cas操作的过程中，把总线上锁，不许打断。</p>
 <p>实现原理：</p>
 <p>cmpxchg &#x3D; cas修改变量值</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">lock cmpxchg<br></code></pre></td></tr></table></figure>
 
+<h3 id="Synchronized关键字"><a href="#Synchronized关键字" class="headerlink" title="Synchronized关键字"></a>Synchronized关键字</h3><p>在学习Synchronized之前我们要先了解<strong>对象在内存中的存储布局</strong>。</p>
+<img src="https://i.bmp.ovh/imgs/2022/06/27/f498f52fa4f781cf.png" style="zoom: 50%;" />
+
+<p>如上图，Java对象的内存构成分三个部分，对象头(mark word、class pointer、array length（数组才有）)，对象体，字节对齐。</p>
+<p>对象头：</p>
+<ul>
+<li><p>mark word</p>
+<p> 用来存储自身运行时的数据，例如：hashcode，锁状态。</p>
+</li>
+<li><p>class pointer</p>
+<p> 用来存储方法区中字节码对象的地址，JVM通过这个指针来确定这个对象是属于哪个类的实例。</p>
+</li>
+<li><p>array length</p>
+<p> 如果对象是数组，则该字段记录数组的长度，如果不是数组，该字段不存在。</p>
+</li>
+</ul>
+<p>对象体：</p>
+<ul>
+<li>对象的成员属性，也包括父类的成员属性，这部分4字节对齐。</li>
+</ul>
+<p>字节对齐：</p>
+<ul>
+<li>对齐字节也叫作填充对齐，其作用是用来保证Java对象所占内存字节数为8的倍数（HotSpot VM的内存管理要求对象起始地址必须是8字节的整数倍）对象头本事是8的倍数，当对象的实例变量数据不是8的倍数时，便需要填充数据来保证8字节对齐。</li>
+</ul>
+<p>举例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>        System.out.println(ClassLayout.parseInstance(o).toPrintable());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://i.bmp.ovh/imgs/2022/06/27/73f6077bd2a022d1.png"></p>
+<p>对了，这里补充一下8种基本数据类型所占字节位数和取值范围。</p>
+<table>
+<thead>
+<tr>
+<th><strong>类型</strong></th>
+<th><strong>占用字节</strong></th>
+<th><strong>占用位数</strong></th>
+<th><strong>数值长度</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>byte</td>
+<td>1</td>
+<td>8</td>
+<td>-128~127(-2的7次方到2的7次方-1)</td>
+</tr>
+<tr>
+<td>short</td>
+<td>2</td>
+<td>16</td>
+<td>-32768~32767(-2的15次方到2的15次方-1)</td>
+</tr>
+<tr>
+<td>int</td>
+<td>4</td>
+<td>32</td>
+<td>-2的31次方到2的31次方-1</td>
+</tr>
+<tr>
+<td>long</td>
+<td>8</td>
+<td>64</td>
+<td>-2的63次方到2的63次方-1</td>
+</tr>
+<tr>
+<td>float</td>
+<td>4</td>
+<td>32</td>
+<td>（e-45是乘以10的负45次方，e+38是乘以10的38次方) （2的-149次方~2的128次方-1）</td>
+</tr>
+<tr>
+<td>double</td>
+<td>8</td>
+<td>64</td>
+<td>(2的-1074次方 ~ 2的1024次方)</td>
+</tr>
+<tr>
+<td>char</td>
+<td>2</td>
+<td>16</td>
+<td></td>
+</tr>
+<tr>
+<td>boolean</td>
+<td></td>
+<td>1</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>boolean有些特殊：</p>
+<p><strong>如果boolean是单独使用：boolean占4个字节。</strong></p>
+<p><strong>如果boolean是以“boolean数组”的形式使用：boolean占1个字节。</strong></p>
+<p>例2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&#123;<br>        <span class="hljs-type">int</span> m;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> “helloworld<span class="hljs-string">&quot;;</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">    public static void main(String[] args) &#123;</span><br><span class="hljs-string">        T t = new T();</span><br><span class="hljs-string">        System.out.println(ClassLayout.parseInstance(t).toPrintable());</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i.bmp.ovh/imgs/2022/06/27/d840af7984eaf558.png"></p>
+<p>上图，0-8为mark word所占字节。8-12的4个字节为class pointer指向T.class，T的成员变量m为int类型占4个字节，在64位的虚拟机中引用类型占4个字节，此时一共20个字节，不满足8的倍数，所以字节对齐补4个字节，最终占24个字节。ps:String所占字节是String指针s的大小，helloworld为s指向常量区的内容。</p>
+<p>在了解了对象在内存中的布局之后，我们再来学习<strong>synchronized</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&#123;<br>        <span class="hljs-type">int</span> m;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;helloworld&quot;</span>;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">T</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">T</span>();<br>        System.out.println(ClassLayout.parseInstance(t).toPrintable());<br><br>        <span class="hljs-keyword">synchronized</span> (t)&#123;<br>            System.out.println(ClassLayout.parseInstance(t).toPrintable());<br>        &#125;<br>        System.out.println(ClassLayout.parseInstance(t).toPrintable());<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://i.bmp.ovh/imgs/2022/06/27/ce73f64932995600.png"></p>
+<p>mark word主要记录的三部分信息：</p>
+<ul>
+<li>锁信息</li>
+<li>GC的信息</li>
+<li>hashcode</li>
+</ul>
+<p>所谓给对象上锁就是修改了mark word，当然在释放后，则恢复最初的状态。</p>
+<p>synchronized为<strong>非公平锁</strong></p>
 
   </article>
 
@@ -174,6 +291,8 @@
   
   <div class="nexmoe-post-meta nexmoe-rainbow">
     
+    
+        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Java/" rel="tag">Java</a>
     
 </div>
 
@@ -229,7 +348,7 @@
 
  
 
-<script async src="/js/app.js?v=1656053435503"></script>
+<script async src="/js/app.js?v=1656318589048"></script>
 
 
 
