@@ -40,7 +40,7 @@
 <meta property="og:image" content="https://s1.imagehub.cc/images/2022/06/29/imagef3592b38e0faf9bd.png">
 <meta property="og:image" content="https://s1.imagehub.cc/images/2022/06/29/image14542d032fd395e6.png">
 <meta property="article:published_time" content="2022-06-29T06:26:12.000Z">
-<meta property="article:modified_time" content="2022-06-29T09:47:13.031Z">
+<meta property="article:modified_time" content="2022-06-30T08:51:20.066Z">
 <meta property="article:author" content="Liu Hao">
 <meta property="article:tag" content="多线程">
 <meta property="article:tag" content="Java">
@@ -187,10 +187,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-06-29 14:26:12 / 修改时间：17:47:13" itemprop="dateCreated datePublished" datetime="2022-06-29T14:26:12+08:00">2022-06-29</time>
+              <time title="创建时间：2022-06-29 14:26:12" itemprop="dateCreated datePublished" datetime="2022-06-29T14:26:12+08:00">2022-06-29</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-06-30 16:51:20" itemprop="dateModified" datetime="2022-06-30T16:51:20+08:00">2022-06-30</time>
+              </span>
 
           
 
@@ -296,6 +302,21 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Dog</span> <span class="hljs-variable">dog</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dog</span>();<br>dog.hashcode();<span class="hljs-comment">//当一个可偏向的对象调用了hashcode方法后，则会撤销这个对象的偏向状态，因为可偏向的对象没有空间存储hashcode。</span><br></code></pre></td></tr></table></figure>
 
+<h4 id="撤销-调用对象hashCode"><a href="#撤销-调用对象hashCode" class="headerlink" title="撤销-调用对象hashCode"></a>撤销-调用对象hashCode</h4><p>调用了对象的hashCode，但偏向锁的对象MarkWord中存储的是线程ID，如果调用hashCode会导致偏向锁被撤销。</p>
+<ul>
+<li>轻量级锁会在锁记录中记录hashCode</li>
+<li>重量级锁会在Monitor中记录hashCode</li>
+</ul>
+<p>在调用hashCode后使用偏向锁，记得去掉<code>-XX:UseBiasedLocking</code></p>
+<h4 id="撤销-其它线程使用对象"><a href="#撤销-其它线程使用对象" class="headerlink" title="撤销-其它线程使用对象"></a>撤销-其它线程使用对象</h4><p>当有其他线程使用偏向锁对象时，会将偏向锁升级为轻量级锁</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&#123;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">T</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">T</span>();<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>            System.out.println(ClassLayout.parseInstance(t));<br>            <span class="hljs-keyword">synchronized</span> (t)&#123;<br>                System.out.println(ClassLayout.parseInstance(t));<br>            &#125;<br>            System.out.println(ClassLayout.parseInstance(t));<br>            <span class="hljs-keyword">synchronized</span> (Test.class)&#123;<br>                Test.class.notify();<br>            &#125;<br>        &#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>            <span class="hljs-keyword">synchronized</span> (Test.class)&#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    Test.class.wait();<br>                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                    e.printStackTrace();<br>                &#125;<br>            &#125;<br>            System.out.println(ClassLayout.parseInstance(t));<br>            <span class="hljs-keyword">synchronized</span> (t)&#123;<br>                System.out.println(ClassLayout.parseInstance(t));<br>            &#125;<br>            System.out.println(ClassLayout.parseInstance(t));<br>        &#125;,<span class="hljs-string">&quot;t2&quot;</span>).start();<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="撤销-调用-wait-x2F-notify"><a href="#撤销-调用-wait-x2F-notify" class="headerlink" title="撤销-调用 wait&#x2F;notify"></a>撤销-调用 wait&#x2F;notify</h4><p>因为wait&#x2F;notify只有重量级锁才有。</p>
+<h4 id="批量重偏向"><a href="#批量重偏向" class="headerlink" title="批量重偏向"></a>批量重偏向</h4><p>如果对象虽然被多个线程访问，但没有竞争，这时偏向了线程T1的对象仍有机会重新偏向T2，重偏向会重置对象的Thread ID</p>
+<p>当撤销偏向锁阈值超过20次后，JVM会这样觉得，我是不是偏向错了呢，于是会在给这些对象加锁时重新偏向至加锁线程。</p>
+<h4 id="批量撤销"><a href="#批量撤销" class="headerlink" title="批量撤销"></a>批量撤销</h4><p> 当撤销偏向锁阈值超过40次后，JVM会觉得自己确实偏向错了，根本就不该偏向。于是整个类的所有对象都会变为不可偏向的，新建的对象也是不可偏向的。</p>
+<h3 id="5、锁消除"><a href="#5、锁消除" class="headerlink" title="5、锁消除"></a>5、锁消除</h3><p>锁消除是指对于被检测出不可能存在竞争的共享数据的锁进行消除，这是 JVM 即时编译器（JIT）的优化</p>
+<p>锁消除主要是通过<strong>逃逸分析</strong>来支持，如果堆上的共享数据不可能逃逸出去被其它线程访问到，那么就可以把它们当成私有数据对待，也就可以将它们的锁进行消除（同步消除：JVM 逃逸分析）</p>
 
     </div>
 
@@ -318,7 +339,10 @@
     <a href="/2022/06/27/ThreadPoolExecutor/" rel="prev" title="ThreadPoolExecutor">
       <i class="fa fa-chevron-left"></i> ThreadPoolExecutor
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/30/wait-notify%E5%8E%9F%E7%90%86/" rel="next" title="wait/notify原理">
+      wait/notify原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -377,7 +401,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized%E8%BF%9B%E9%98%B6"><span class="nav-number">1.</span> <span class="nav-text">synchronized进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81"><span class="nav-number">1.1.</span> <span class="nav-text">1、轻量级锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E9%94%81%E8%86%A8%E8%83%80"><span class="nav-number">1.2.</span> <span class="nav-text">2、锁膨胀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E8%87%AA%E6%97%8B%E4%BC%98%E5%8C%96"><span class="nav-number">1.3.</span> <span class="nav-text">3、自旋优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E5%81%8F%E5%90%91%E9%94%81"><span class="nav-number">1.4.</span> <span class="nav-text">4、偏向锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%8F%E5%90%91%E7%8A%B6%E6%80%81"><span class="nav-number">1.4.1.</span> <span class="nav-text">偏向状态</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized%E8%BF%9B%E9%98%B6"><span class="nav-number">1.</span> <span class="nav-text">synchronized进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81"><span class="nav-number">1.1.</span> <span class="nav-text">1、轻量级锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E9%94%81%E8%86%A8%E8%83%80"><span class="nav-number">1.2.</span> <span class="nav-text">2、锁膨胀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E8%87%AA%E6%97%8B%E4%BC%98%E5%8C%96"><span class="nav-number">1.3.</span> <span class="nav-text">3、自旋优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E5%81%8F%E5%90%91%E9%94%81"><span class="nav-number">1.4.</span> <span class="nav-text">4、偏向锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%8F%E5%90%91%E7%8A%B6%E6%80%81"><span class="nav-number">1.4.1.</span> <span class="nav-text">偏向状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%92%A4%E9%94%80-%E8%B0%83%E7%94%A8%E5%AF%B9%E8%B1%A1hashCode"><span class="nav-number">1.4.2.</span> <span class="nav-text">撤销-调用对象hashCode</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%92%A4%E9%94%80-%E5%85%B6%E5%AE%83%E7%BA%BF%E7%A8%8B%E4%BD%BF%E7%94%A8%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.4.3.</span> <span class="nav-text">撤销-其它线程使用对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%92%A4%E9%94%80-%E8%B0%83%E7%94%A8-wait-x2F-notify"><span class="nav-number">1.4.4.</span> <span class="nav-text">撤销-调用 wait&#x2F;notify</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E9%87%8D%E5%81%8F%E5%90%91"><span class="nav-number">1.4.5.</span> <span class="nav-text">批量重偏向</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E6%92%A4%E9%94%80"><span class="nav-number">1.4.6.</span> <span class="nav-text">批量撤销</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5%E3%80%81%E9%94%81%E6%B6%88%E9%99%A4"><span class="nav-number">1.5.</span> <span class="nav-text">5、锁消除</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -391,7 +415,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
