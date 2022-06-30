@@ -1,18 +1,26 @@
 <!DOCTYPE html>
-
 <html lang="zh-CN">
-
 <head>
-    
-    <title>synchronized进阶 - 山海经</title>
-    <meta charset="UTF-8">
-    <meta name="keywords" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-    
-    
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
 
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <meta name="description" content="synchronized进阶1、轻量级锁轻量级锁的使用场景：如果一个对象虽然有多线程访问，但多线程访问的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化。 轻量级锁对使用者是透明的，即语法仍然是synchronized 假设有两个同步方法块，利用同一个对象加锁 1234567891011121314static final Object obj &#x3D; new Object();">
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zutlh.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="synchronized进阶1、轻量级锁轻量级锁的使用场景：如果一个对象虽然有多线程访问，但多线程访问的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化。 轻量级锁对使用者是透明的，即语法仍然是synchronized 假设有两个同步方法块，利用同一个对象加锁 1234567891011121314static final Object obj &#x3D; new Object();">
 <meta property="og:type" content="article">
 <meta property="og:title" content="synchronized进阶">
 <meta property="og:url" content="http://zutlh.top/2022/06/29/synchronized%E8%BF%9B%E9%98%B6/index.html">
@@ -32,139 +40,170 @@
 <meta property="og:image" content="https://s1.imagehub.cc/images/2022/06/29/imagef3592b38e0faf9bd.png">
 <meta property="og:image" content="https://s1.imagehub.cc/images/2022/06/29/image14542d032fd395e6.png">
 <meta property="article:published_time" content="2022-06-29T06:26:12.000Z">
-<meta property="article:modified_time" content="2022-06-29T09:30:25.715Z">
+<meta property="article:modified_time" content="2022-06-29T09:47:13.031Z">
 <meta property="article:author" content="Liu Hao">
 <meta property="article:tag" content="多线程">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://i.bmp.ovh/imgs/2022/06/29/20a51bea9e9c8dee.png">
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
-    />
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"
-    />
-    
-    <link rel="stylesheet" href="/lib/mdui_043tiny/css/mdui.css?v=1656495587273">
-    <link rel="stylesheet" href="/lib/iconfont/iconfont.css?v=1656495587273">
-    <link rel="stylesheet" href="/css/style.css?v=1656495587273">
-     
-    
-<meta name="generator" content="Hexo 6.1.0"></head>
 
-<body class="mdui-drawer-body-left">
-    
-    <div id="nexmoe-background">
-        <div class="nexmoe-bg" style="background-image: url(https://s1.ax1x.com/2022/04/28/LOTELQ.jpg)"></div>
-        <div class="mdui-appbar mdui-shadow-0">
-            <div class="mdui-toolbar">
-                <a mdui-drawer="{target: '#drawer', swipe: true}" title="menu" class="mdui-btn mdui-btn-icon mdui-ripple"><i class="mdui-icon nexmoefont icon-menu"></i></a>
-                <div class="mdui-toolbar-spacer"></div>
-                <!--<a href="javascript:;" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">search</i></a>-->
-                <a href="/" title="Liu Hao" class="mdui-btn mdui-btn-icon"><img src="https://s1.ax1x.com/2022/04/22/Lg0TBj.jpg" alt="Liu Hao"></a>
-            </div>
-        </div>
-    </div>
-    <div id="nexmoe-header">
-        <div class="nexmoe-drawer mdui-drawer" id="drawer">
-    <div class="nexmoe-avatar mdui-ripple">
-        <a href="/" title="Liu Hao">
-            <img src="https://s1.ax1x.com/2022/04/22/Lg0TBj.jpg" alt="Liu Hao" alt="Liu Hao">
-        </a>
-    </div>
-    <div class="nexmoe-count">
-        <div><span>文章</span>10</div>
-        <div><span>标签</span>3</div>
-        <div><span>分类</span>0</div>
-    </div>
-    <div class="nexmoe-list mdui-list" mdui-collapse="{accordion: true}">
-        
-        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/" title="回到首页">
-            <i class="mdui-list-item-icon nexmoefont icon-home"></i>
-            <div class="mdui-list-item-content">
-                回到首页
-            </div>
-        </a>
-        
-        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/about.html" title="关于博客">
-            <i class="mdui-list-item-icon nexmoefont icon-info-circle"></i>
-            <div class="mdui-list-item-content">
-                关于博客
-            </div>
-        </a>
-        
-        <a class="nexmoe-list-item mdui-list-item mdui-ripple false" href="/PY.html" title="我的朋友">
-            <i class="mdui-list-item-icon nexmoefont icon-unorderedlist"></i>
-            <div class="mdui-list-item-content">
-                我的朋友
-            </div>
-        </a>
-        
-    </div>
-    <aside id="nexmoe-sidebar">
-    
-    <div class="nexmoe-widget-wrap">
-    <div class="nexmoe-widget nexmoe-search">
-         
-            <form id="search_form" action_e="https://cn.bing.com/search?q=site:nexmoe.com" onsubmit="return search();">
-                <label><input id="search_value" name="q" type="search" placeholder="搜索"></label>
-            </form>
-         
-    </div>
-</div>
-    
-    <div class="nexmoe-widget-wrap">
-    <div class="nexmoe-widget nexmoe-social">
-        <a class="mdui-ripple" href="https://jq.qq.com/?_wv=1027&k=5CfKHun" target="_blank" mdui-tooltip="{content: 'QQ群'}" style="color: rgb(249, 174, 8);background-color: rgba(249, 174, 8, .1);">
-            <i class="nexmoefont icon-QQ"></i>
-        </a><a class="mdui-ripple" href="https://space.bilibili.com/108912188" target="_blank" mdui-tooltip="{content: '哔哩哔哩'}" style="color: rgb(231, 106, 141);background-color: rgba(231, 106, 141, .15);">
-            <i class="nexmoefont icon-bilibili"></i>
-        </a><a class="mdui-ripple" href="https://github.com/zutlh" target="_blank" mdui-tooltip="{content: 'GitHub'}" style="color: rgb(25, 23, 23);background-color: rgba(25, 23, 23, .15);">
-            <i class="nexmoefont icon-github"></i>
-        </a>
-    </div>
-</div>
-    
-    
+<link rel="canonical" href="http://zutlh.top/2022/06/29/synchronized%E8%BF%9B%E9%98%B6/">
 
-    
-    
-  <div class="nexmoe-widget-wrap">
-    <div id="randomtagcloud" class="nexmoe-widget tagcloud nexmoe-rainbow">
-      <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/learnKnowledge/" style="font-size: 10px;">learnKnowledge</a> <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" style="font-size: 20px;">多线程</a>
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>synchronized进阶 | 山海经</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
-    
   </div>
 
-    
-</aside>
-    <div class="nexmoe-copyright">
-        &copy; 2022 Liu Hao
-        Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-        & <a href="https://github.com/theme-nexmoe/hexo-theme-nexmoe" target="_blank">Nexmoe</a>
-        <br><a target="_blank" href="https://www.upyun.com/?utm_source=lianmeng&utm_medium=referral"><img src="https://i.dawnlab.me/c0268c1e6cfd0863d6ba35be1575941a.png" width="150px"></a><script data-ad-client="ca-pub-2058306854838448" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-    </div>
-</div><!-- .nexmoe-drawer -->
-    </div>
-    <div id="nexmoe-content">
-        <div class="nexmoe-primary">
-            <div class="nexmoe-post">
+  <div class="site-meta">
 
-  <article>
-      
-          <div class="nexmoe-post-cover" style="padding-bottom: NaN%;"> 
-              <img src="https://s1.imagehub.cc/images/2022/06/29/39a9db1441e4459b604c6736f6f262c.jpg" alt="synchronized进阶" loading="lazy">
-              <h1>synchronized进阶</h1>
-          </div>
-      
-      
-      <div class="nexmoe-post-meta nexmoe-rainbow" style="margin:10px 0!important;">
-    <a><i class="nexmoefont icon-calendar-fill"></i>2022年06月29日</a>
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">山海经</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
 </div>
 
-      <h2 id="synchronized进阶"><a href="#synchronized进阶" class="headerlink" title="synchronized进阶"></a>synchronized进阶</h2><h3 id="1、轻量级锁"><a href="#1、轻量级锁" class="headerlink" title="1、轻量级锁"></a>1、轻量级锁</h3><p>轻量级锁的使用场景：如果一个对象虽然有多线程访问，但多线程访问的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化。</p>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/29/synchronized%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          synchronized进阶
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-06-29 14:26:12 / 修改时间：17:47:13" itemprop="dateCreated datePublished" datetime="2022-06-29T14:26:12+08:00">2022-06-29</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="synchronized进阶"><a href="#synchronized进阶" class="headerlink" title="synchronized进阶"></a>synchronized进阶</h2><h3 id="1、轻量级锁"><a href="#1、轻量级锁" class="headerlink" title="1、轻量级锁"></a>1、轻量级锁</h3><p>轻量级锁的使用场景：如果一个对象虽然有多线程访问，但多线程访问的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化。</p>
 <p>轻量级锁对使用者是透明的，即语法仍然是synchronized</p>
 <p>假设有两个同步方法块，利用同一个对象加锁</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">method1</span><span class="hljs-params">()</span>&#123;<br>            <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>                <span class="hljs-comment">// 同步块A</span><br>                method2();<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">method2</span><span class="hljs-params">()</span>&#123;<br>            <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>                <span class="hljs-comment">// 同步块B</span><br>            &#125;<br>        &#125;<br></code></pre></td></tr></table></figure>
@@ -209,7 +248,7 @@
 
 <ul>
 <li><p>当Thread-1进行轻量级加锁时，Thread-0已经对该对象加了轻量级锁</p>
-<p><img data-fancybox="gallery" src="https://s1.imagehub.cc/images/2022/06/29/1656487678553.png" alt="1656487678553.png" data-caption="1656487678553.png" loading="lazy"></p>
+<p><img src="https://s1.imagehub.cc/images/2022/06/29/1656487678553.png" alt="1656487678553.png"></p>
 </li>
 <li><p>这时Threa-1加轻量级锁失败，进入锁膨胀流程</p>
 <ul>
@@ -218,7 +257,7 @@
 </ul>
 </li>
 </ul>
-<p><img data-fancybox="gallery" src="https://s1.imagehub.cc/images/2022/06/29/image64622f2a05987cd2.png" alt="image64622f2a05987cd2.png" data-caption="image64622f2a05987cd2.png" loading="lazy"></p>
+<p><img src="https://s1.imagehub.cc/images/2022/06/29/image64622f2a05987cd2.png" alt="image64622f2a05987cd2.png"></p>
 <ul>
 <li>当Thread-0退出同步代码块解锁时，使用cas将Mark Word的值恢复给对象头，失败。这时会进入重量级解锁流程，即按照Monitor地址找到Monitor对象，设置Owner为null，唤醒EntryList中BLOCKED线程，让Thread-1有机会获得这个对象。</li>
 </ul>
@@ -231,9 +270,9 @@
 <p>优点：不会进入阻塞状态，<strong>减少线程上下文切换的消耗</strong></p>
 <p>缺点：当自旋的线程越来越多时，会不断的消耗 CPU 资源</p>
 <p>自旋重试成功的情况</p>
-<p><img data-fancybox="gallery" src="https://s1.imagehub.cc/images/2022/06/29/image2cdcd976cb2cea70.png" alt="image2cdcd976cb2cea70.png" data-caption="image2cdcd976cb2cea70.png" loading="lazy"></p>
+<p><img src="https://s1.imagehub.cc/images/2022/06/29/image2cdcd976cb2cea70.png" alt="image2cdcd976cb2cea70.png"></p>
 <p>自旋失败的情况：</p>
-<p><img data-fancybox="gallery" src="https://s1.imagehub.cc/images/2022/06/29/image2854cd1be0e2e86b.png" alt="image2854cd1be0e2e86b.png" data-caption="image2854cd1be0e2e86b.png" loading="lazy"></p>
+<p><img src="https://s1.imagehub.cc/images/2022/06/29/image2854cd1be0e2e86b.png" alt="image2854cd1be0e2e86b.png"></p>
 <ul>
 <li>在Java 6之后自旋锁时自适应的，比如对象刚刚的一次自旋操作成功过，那么认为这次自旋成功的可能性会高，就多自旋几次；反之，就少自旋甚至不自旋，总之，比较只能。</li>
 <li>Java 7之后不能控制是否开启自旋功能。</li>
@@ -242,12 +281,12 @@
 <p>Java 6中引入了偏向锁来进一步优化：只有第一次使用CAS将<strong>线程ID</strong>（不是轻量级锁的锁记录地址，也不是重量级锁的指针）设置到对象的Mark Word头，之后发现这个线程ID是自己的就表示没有竞争，不用重新CAS。以后只要不发生竞争，这个对象就归该线程所有。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m1</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (obj) &#123;<br>        m2();<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m2</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>        m3();<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m3</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>        <br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-<img data-fancybox="gallery" src="https://s1.imagehub.cc/images/2022/06/29/image6a0d31feca1965ec.png" alt="image6a0d31feca1965ec.png" data-caption="image6a0d31feca1965ec.png" loading="lazy">
+<img src="https://s1.imagehub.cc/images/2022/06/29/image6a0d31feca1965ec.png" alt="image6a0d31feca1965ec.png" style="zoom: 50%;" />
 
-<img data-fancybox="gallery" src="https://s1.imagehub.cc/images/2022/06/29/imagef3592b38e0faf9bd.png" alt="imagef3592b38e0faf9bd.png" data-caption="imagef3592b38e0faf9bd.png" loading="lazy">
+<img src="https://s1.imagehub.cc/images/2022/06/29/imagef3592b38e0faf9bd.png" alt="imagef3592b38e0faf9bd.png" style="zoom:50%;" />
 
 <h4 id="偏向状态"><a href="#偏向状态" class="headerlink" title="偏向状态"></a>偏向状态</h4><p>回忆一下对象头格式</p>
-<p><img data-fancybox="gallery" src="https://s1.imagehub.cc/images/2022/06/29/image14542d032fd395e6.png" alt="image14542d032fd395e6.png" data-caption="image14542d032fd395e6.png" loading="lazy"></p>
+<p><img src="https://s1.imagehub.cc/images/2022/06/29/image14542d032fd395e6.png" alt="image14542d032fd395e6.png"></p>
 <p>一个对象创建时：</p>
 <ul>
 <li>如果开启了偏向锁（默认开启），那么对象创建后，Mark Word值为0x05即最后3位为101，这时它的thread、epoch、age都为0</li>
@@ -257,113 +296,192 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Dog</span> <span class="hljs-variable">dog</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dog</span>();<br>dog.hashcode();<span class="hljs-comment">//当一个可偏向的对象调用了hashcode方法后，则会撤销这个对象的偏向状态，因为可偏向的对象没有空间存储hashcode。</span><br></code></pre></td></tr></table></figure>
 
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><br><span class="hljs-type">Dog</span> <span class="hljs-variable">dog</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dog</span>();<br>dog.hashcode();<span class="hljs-comment">//当一个可偏向的对象调用了hashcode方法后，则会撤销这个对象的偏向状态，因为可偏向的对象没有空间存储hashcode。</span><br><br></code></pre></td></tr></table></figure>
 
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"># 多线程</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/27/ThreadPoolExecutor/" rel="prev" title="ThreadPoolExecutor">
+      <i class="fa fa-chevron-left"></i> ThreadPoolExecutor
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
-
-  
-      
-    <div class="nexmoe-post-copyright">
-        <strong>本文作者：</strong>Liu Hao<br>
-        <strong>本文链接：</strong><a href="http://zutlh.top/2022/06/29/synchronized%E8%BF%9B%E9%98%B6/" title="http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;06&#x2F;29&#x2F;synchronized%E8%BF%9B%E9%98%B6&#x2F;" target="_blank" rel="noopener">http:&#x2F;&#x2F;zutlh.top&#x2F;2022&#x2F;06&#x2F;29&#x2F;synchronized%E8%BF%9B%E9%98%B6&#x2F;</a><br>
-        
-            <strong>版权声明：</strong>本文采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/cn/deed.zh" target="_blank">CC BY-NC-SA 3.0 CN</a> 协议进行许可
-        
-    </div>
-
-
   
   
-  <div class="nexmoe-post-meta nexmoe-rainbow">
-    
-    
-        <a class="nexmoefont icon-tag-fill -none-link" href="/tags/Java/" rel="tag">Java</a> <a class="nexmoefont icon-tag-fill -none-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a>
-    
-</div>
-
   
-      <div class="nexmoe-post-footer">
-          <section class="nexmoe-comment">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.css">
-<div id="gitalk"></div>
-<script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script>
-<script type="text/javascript">
-    var gitalk = new Gitalk({
-        clientID: '80b2453b6d5f37ad6225',
-        clientSecret: '43e99fa852795c9a7b3eb924b2558c64b84bbdeb',
-        id: window.location.pathname,
-        repo: 'nexmoe.github.io',
-        owner: 'nexmoe',
-        admin: 'nexmoe'
-    })
-    gitalk.render('gitalk')
-</script>
-</section>
-      </div>
-  
-</div>
-            <div class="nexmoe-post-right">
-              <div class="nexmoe-fixed">
-                  <div class="nexmoe-tool"> 
-                    
-                      
-                        
-                          
-                          
-                              <button class="mdui-fab catalog" style="overflow:unset;">
-                                  <i class="nexmoefont icon-i-catalog"></i>
-                                  <div class="nexmoe-toc">
-                                      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#synchronized%E8%BF%9B%E9%98%B6"><span class="toc-number">1.</span> <span class="toc-text">synchronized进阶</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81"><span class="toc-number">1.1.</span> <span class="toc-text">1、轻量级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E9%94%81%E8%86%A8%E8%83%80"><span class="toc-number">1.2.</span> <span class="toc-text">2、锁膨胀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E8%87%AA%E6%97%8B%E4%BC%98%E5%8C%96"><span class="toc-number">1.3.</span> <span class="toc-text">3、自旋优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%81%8F%E5%90%91%E9%94%81"><span class="toc-number">1.4.</span> <span class="toc-text">4、偏向锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%81%8F%E5%90%91%E7%8A%B6%E6%80%81"><span class="toc-number">1.4.1.</span> <span class="toc-text">偏向状态</span></a></li></ol></li></ol></li></ol>
-                                  </div>
-                              </button>
-                          
-                          
-                      
-                    
-                      <a href="#nexmoe-content" class="toc-link" aria-label="回到顶部" title="top"><button class="mdui-fab mdui-ripple"><i class="nexmoefont icon-caret-top"></i></button></a>
-                  </div>
-              </div>
-            </div>
-        </div>
-    </div>
-     
-    <div id="nexmoe-search-space">
-        <div class="search-container">
-            <div class="search-header">
-                <div class="search-input-container">
-                    <input class="search-input" type="text" placeholder="搜索" oninput="sinput();">
-                </div>
-                <a class="search-close" onclick="sclose();">×</a>
-            </div>
-            <div class="search-body"></div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/mdui@0.4.3/dist/js/mdui.min.js?v=1"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
-
- 
-
-<script async src="/js/app.js?v=1656495587281"></script>
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js"></script>
+          </div>
+          
+
 <script>
-	$(".justified-gallery").justifiedGallery({
-		rowHeight: 160,
-		margins: 10,
-	});
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
 </script>
 
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
 
-    
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized%E8%BF%9B%E9%98%B6"><span class="nav-number">1.</span> <span class="nav-text">synchronized进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81"><span class="nav-number">1.1.</span> <span class="nav-text">1、轻量级锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E9%94%81%E8%86%A8%E8%83%80"><span class="nav-number">1.2.</span> <span class="nav-text">2、锁膨胀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E8%87%AA%E6%97%8B%E4%BC%98%E5%8C%96"><span class="nav-number">1.3.</span> <span class="nav-text">3、自旋优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81%E5%81%8F%E5%90%91%E9%94%81"><span class="nav-number">1.4.</span> <span class="nav-text">4、偏向锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%8F%E5%90%91%E7%8A%B6%E6%80%81"><span class="nav-number">1.4.1.</span> <span class="nav-text">偏向状态</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Liu Hao</p>
+  <div class="site-description" itemprop="description">记录身边的贵物</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Hao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
 
 
 
 
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
 
 </body>
-
 </html>
