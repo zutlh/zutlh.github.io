@@ -20,17 +20,19 @@
     var CONFIG = {"hostname":"zutlh.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="记录身边的贵物">
-<meta property="og:type" content="website">
-<meta property="og:title" content="山海经">
-<meta property="og:url" content="http://zutlh.top/archives/2022/05/index.html">
+  <meta name="description" content="final原理设置final变量的原理理解了volatile原理，再对比final的实现就比较简单了 123public class TestFinal&amp;#123;    final int a &#x3D; 20;&amp;#125;  字节码 123456780: aload_01: invokespecial #1 &#x2F;&#x2F; Method java&#x2F;lang&#x2F;Object.&quot;&lt;init&gt;&amp;q">
+<meta property="og:type" content="article">
+<meta property="og:title" content="final原理">
+<meta property="og:url" content="http://zutlh.top/2022/07/07/final%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="山海经">
-<meta property="og:description" content="记录身边的贵物">
+<meta property="og:description" content="final原理设置final变量的原理理解了volatile原理，再对比final的实现就比较简单了 123public class TestFinal&amp;#123;    final int a &#x3D; 20;&amp;#125;  字节码 123456780: aload_01: invokespecial #1 &#x2F;&#x2F; Method java&#x2F;lang&#x2F;Object.&quot;&lt;init&gt;&amp;q">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-07-07T07:29:11.000Z">
+<meta property="article:modified_time" content="2022-07-07T07:52:33.360Z">
 <meta property="article:author" content="Liu Hao">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://zutlh.top/archives/2022/05/">
+<link rel="canonical" href="http://zutlh.top/2022/07/07/final%E5%8E%9F%E7%90%86/">
 
 
 <script id="page-configurations">
@@ -38,12 +40,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | 山海经</title>
+  <title>final原理 | 山海经</title>
   
 
 
@@ -141,110 +143,87 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 21 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/07/07/final%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          final原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-07 15:29:11 / 修改时间：15:52:33" itemprop="dateCreated datePublished" datetime="2022-07-07T15:29:11+08:00">2022-07-07</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2022</span>
-    </div>
+        <h3 id="final原理"><a href="#final原理" class="headerlink" title="final原理"></a>final原理</h3><h4 id="设置final变量的原理"><a href="#设置final变量的原理" class="headerlink" title="设置final变量的原理"></a>设置final变量的原理</h4><p>理解了volatile原理，再对比final的实现就比较简单了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TestFinal</span>&#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">20</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<p>字节码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">0</span>: aload_0<br><span class="hljs-number">1</span>: invokespecial #<span class="hljs-number">1</span> <span class="hljs-comment">// Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br><span class="hljs-number">4</span>: aload_0<br><span class="hljs-number">5</span>: bipush <span class="hljs-number">20</span>		<span class="hljs-comment">// 将值直接放入栈中</span><br><span class="hljs-number">7</span>: putfield #<span class="hljs-number">2</span> 		<span class="hljs-comment">// Field a:I</span><br>&lt;-- 写屏障<br><span class="hljs-number">10</span>: <span class="hljs-keyword">return</span><br><br></code></pre></td></tr></table></figure>
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2022-05-25T16:40:21+08:00"
-              content="2022-05-25">
-          05-25
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/05/25/reference/" itemprop="url">
-            <span itemprop="name">reference</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2022-05-24T10:14:40+08:00"
-              content="2022-05-24">
-          05-24
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/05/24/parallelStream/" itemprop="url">
-            <span itemprop="name">浅谈parallelStream</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2022-05-23T14:05:09+08:00"
-              content="2022-05-23">
-          05-23
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/05/23/learnKnowledgeday1/" itemprop="url">
-            <span itemprop="name">每天一个知识点(一)</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2022-05-20T14:30:48+08:00"
-              content="2022-05-20">
-          05-20
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2022/05/20/threadlocal/" itemprop="url">
-            <span itemprop="name">threadlocal</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+<p>发现final变量的赋值也会通过putfield指令来完成，同样在这条指令之后也会加入写屏障，保证在其他线程读到它的值时不会出现为0的情况。</p>
+<p>其他线程访问 final 修饰的变量<strong>会复制一份放入栈中</strong>，效率更高</p>
 
     </div>
-  </div>
-  
-  
-  
 
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/07/volatile%E5%8E%9F%E7%90%86/" rel="prev" title="volatile原理">
+      <i class="fa fa-chevron-left"></i> volatile原理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/07/aqs/" rel="next" title="aqs">
+      aqs <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
   
 
 
@@ -297,6 +276,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#final%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">final原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AEfinal%E5%8F%98%E9%87%8F%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">设置final变量的原理</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
