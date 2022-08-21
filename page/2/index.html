@@ -147,6 +147,197 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/07/05/park/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/05/park/" class="post-title-link" itemprop="url">park&unpark</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-05 14:23:28 / 修改时间：15:26:01" itemprop="dateCreated datePublished" datetime="2022-07-05T14:23:28+08:00">2022-07-05</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><p>他们是LockSupport类中的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 暂停当前线程</span><br>LockSupport.park();<br><span class="hljs-comment">// 恢复某个线程的运行</span><br>LockSupport.unpark(暂停线程对象);<br></code></pre></td></tr></table></figure>
+
+<p>先<code>park</code>再<code>unpark</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Thread</span> <span class="hljs-variable">t1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>    log.debug(<span class="hljs-string">&quot;start...&quot;</span>);<br>    <span class="hljs-keyword">try</span> &#123;<br>        Thread.sleep(<span class="hljs-number">1000</span>);<br>    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>        e.printStackTrace();<br>    &#125;<br>    log.debug(<span class="hljs-string">&quot;park&quot;</span>);<br>    LockSupport.park();<br>    log.debug(<span class="hljs-string">&quot;resume...&quot;</span>);<br>&#125;,<span class="hljs-string">&quot;t1&quot;</span>);<br>t1.start();<br><br>Thread.sleep(<span class="hljs-number">2000</span>);<br>log.debug(<span class="hljs-string">&quot;unpark...&quot;</span>);<br>LockSupport.unpark(t1);<br></code></pre></td></tr></table></figure>
+
+<h4 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h4><p>与Object的wait和notify相比</p>
+<ul>
+<li>wait notify和notifyAll必须配合Object Monitor使用，而park，unpark不用。</li>
+<li>parl，unpark是以线程为单位来【阻塞】和【唤醒】线程，而notify只能随机唤醒一个等待进程，notifyAll是唤醒所有等待进程，就不那么【精确】</li>
+<li>park，unpark可以先unpark，而wait，notify不能先norify。</li>
+</ul>
+<h3 id="park，unpark原理"><a href="#park，unpark原理" class="headerlink" title="park，unpark原理"></a>park，unpark原理</h3><p>每个线程都有自己的一个Parker对象，由三部分组成<code>_counter,_cond,_mutex</code>打个比喻</p>
+<ul>
+<li>线程就像一个旅人，Parker就像他随身携带的背包，条件变量就好比背包中的帐篷，<code>_counter</code>就好比背包中的备用干粮(0为耗尽，1为充足)。</li>
+<li>调用<code>park</code>就是要看需不需要停下来休息<ul>
+<li>如果备用干粮耗尽，那么钻进帐篷休息。</li>
+<li>如果备用干粮充足，那么不需要停留，继续前行。</li>
+</ul>
+</li>
+<li>调用<code>unpark</code>，就好比令干粮充足<ul>
+<li>如果这时线程还在帐篷，就唤醒让他继续前进。</li>
+<li>如果这时线程还在运行，那么下次他调用park时，仅是消耗调备用干粮，不需停留继续前进</li>
+<li>因为背包空间有限，多次调用unpark仅会补充一份备用干粮。</li>
+</ul>
+</li>
+</ul>
+<img src="https://s1.imagehub.cc/images/2022/07/05/image92b824844fc8a694.png" alt="image92b824844fc8a694.png" style="zoom: 67%;" />
+
+<p>1.当前线程调用Unsafe.park()方法</p>
+<p>2.检查_counter，本情况为0，这时获得 _mutex互斥锁</p>
+<p>3.线程进入_cond条件变量阻塞。</p>
+<p>4.设置 _counter &#x3D; 0</p>
+<img src="https://s1.imagehub.cc/images/2022/07/05/image46ee1776dee5c660.png" alt="image46ee1776dee5c660.png" style="zoom:67%;" />
+
+<p>1.调用Unsafe.unpark(Thread_0)方法，设置_counter为1</p>
+<p>2.唤醒_cond条件变量中的Thread_0</p>
+<p>3.Thread_0恢复运行</p>
+<p>4.设置_counter为0</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/30/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/30/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81/" class="post-title-link" itemprop="url">线程状态</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-30 16:54:15" itemprop="dateCreated datePublished" datetime="2022-06-30T16:54:15+08:00">2022-06-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-01 11:18:35" itemprop="dateModified" datetime="2022-07-01T11:18:35+08:00">2022-07-01</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="五种状态"><a href="#五种状态" class="headerlink" title="五种状态"></a>五种状态</h3><p>这是从<strong>操作系统</strong>层面来描述的</p>
+<img src="https://s1.imagehub.cc/images/2022/06/30/image.png" alt="image.png" style="zoom: 67%;" />
+
+<ul>
+<li>【初始状态】 仅是在语言层面创建了对象，还未于操作系统线程关联。</li>
+<li>【可运行状态】（就绪状态）指该线程已经被创建（于操作系统线程关联），可以由CPU调度执行。</li>
+<li>【运行状态】指获取了CPU时间片运行中的状态。<ul>
+<li>当CPU时间片用完，会从【运行状态】转换至【可运行状态】，会导致线程的上下文切换</li>
+</ul>
+</li>
+<li>【阻塞状态】<ul>
+<li>如果调用了阻塞API，如BIO读写空间，这时该线程实际不会用到CPU，会导致线程上下文切换，进入【阻塞状态】</li>
+<li>等BIO操作完毕，会由操作系统唤醒阻塞的线程，转换至【可运行状态】</li>
+<li>与【可运行状态】的区别是，对【阻塞状态】的线程来说只要它们一直不唤醒，调度器就一直不会考虑调度他们</li>
+</ul>
+</li>
+<li>【终止状态】表示线程已经执行完毕，生命周期结束，不会再转换成其他状态。</li>
+</ul>
+<h3 id="六种状态"><a href="#六种状态" class="headerlink" title="六种状态"></a>六种状态</h3><p>这是从Java API层面来描述的</p>
+<p>根据Thread.State枚举，分为六种状态。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">State</span> &#123;<br><br>    NEW,<br><br>    RUNNABLE,<br><br>    BLOCKED,<br><br>    WAITING,<br><br>    TIMED_WAITING,<br><br>    TERMINATED;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<img src="https://s1.imagehub.cc/images/2022/06/30/imageb8e84a844ba83fb0.png" alt="imageb8e84a844ba83fb0.png" style="zoom:50%;" />
+
+<ul>
+<li><code>NEW </code>线程刚被创建，但是还没有调用<code>start()</code>方法</li>
+<li><code>RUNNABLE</code> 当调用了<code>start()</code>方法之后，注意，JAVA API层面的<code>RUNNABLE</code>状态涵盖了<strong>操作系统</strong>层面的【可运行状态】、【运行状态】和【阻塞状态】（由于BIO导致的线程阻塞，再JAVA里无法区分，仍然认为是可运行）</li>
+<li><code>BLOCKED WAITING TIMED_WAITING</code>都是JAVA API层面对【阻塞状态】的细分，后面会在状态转换一节详细阐述</li>
+<li><code>TERMINATED</code> 当线程代码运行结束</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/30/wait-notify%E5%8E%9F%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1032,180 +1223,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/04/29/polymorphic/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/04/29/polymorphic/" class="post-title-link" itemprop="url">多态</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-04-29 14:01:41" itemprop="dateCreated datePublished" datetime="2022-04-29T14:01:41+08:00">2022-04-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-10 15:05:49" itemprop="dateModified" datetime="2022-05-10T15:05:49+08:00">2022-05-10</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="方法调用绑定"><a href="#方法调用绑定" class="headerlink" title="方法调用绑定"></a>方法调用绑定</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">tune</span><span class="hljs-params">(Instrument i)</span>;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Instrument</span>&#123;&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Wind</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Instrument</span>&#123;&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Guitar</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Instrument</span>&#123;&#125;<br></code></pre></td></tr></table></figure>
-
-<p>tune接收一个Instrument的引用。那么在这种情况下，编译器怎么才能知道这个Instrument引用指向的是Wind对象，而不是Guitar对象呢？实际上，编译器无法得知。</p>
-<p>​    将一个方法调用同一个方法主体关联起来被称作绑定。若在程序执行前进行绑定（如果有的话，由编译器和连接程序实现），叫做前期绑定。读者可能以前没有听说过这个术语，因为它是面向过程的语言中不需要选择就默认的绑定方式。例如，C只有一种方法调用，那就是前期绑定。</p>
-<p>​    上述程序之所以令人迷惑，主要是因为前期绑定。因为，当编译器只有一个Instrument引用时，它无法知道究竟调用哪个方法才对。</p>
-<p>​    解决的办法就是后期绑定，它的含义就是在运行时根据对象的类型进行绑定。后期绑定也叫做动态绑定或运行时绑定。如果一种语言想实现后期绑定，就必须具有某种机制，以便在运行时能判断对象的类型，从而调用恰当的方法。也就是说，编译器一直不知道对象的类型，但在方法调用机制能找到正确的方法体，并加以调用。后期绑定机制随编程语言的不同而有所不同，但是只要想一下就会得知，不管怎样都必须在对象中安置某种“类型信息”。</p>
-<p>​    Java中除了static方法和final方法（private方法也属于final方法）之外，其他所有的方法都是后期绑定。这意味着通常情况下，我们不必判定是否应该进行后期绑定——他会自动发生。</p>
-<p>​    为什么要将某个方法声明为final呢？正如之前提到的那样，它可以防止其他人覆盖该方法。但更重要的一点或许是：这样做可以有效地“关闭”动态绑定，或者说，告诉编译器不需要对其进行动态绑定。这样，编译器就可以为final方法调用生成更有效的代码。然而，大多数情况下，这样做对程序的整体性能不会有什么改观。所以，最好根据设计来决定是否使用final，而不是出于试图提高性能的目的来使用final。</p>
-<h3 id="产生正确的行为"><a href="#产生正确的行为" class="headerlink" title="产生正确的行为"></a>产生正确的行为</h3><p>​    一旦知道Java中所有方法都是通过动态绑定实现多态这个事实之后，我们就可以编写只与基类打交道的代码了，并且这些 代码对所有的导出类都可以正确运行。或者换一种说法，发送消息给某个对象，让该对象去断定应该做什么事。</p>
-<p>​    面向对象程序设计中，有一个经典的例子就是“几何形状”(shape)。因为它很直观，所以经常用到。</p>
-<p>​    在“几何形状”这个例子中，有一个基类shape，以及多个导出类——如Circle、Square、Triangle等。这个例子之所以好用，是因为我们可以说“圆是一种几何形状”。</p>
-<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/OYr5mq"><img src="https://s1.ax1x.com/2022/05/10/OYr5mq.png" alt="OYr5mq.png"></a></p>
-<p>向上转型可以像下面这条语句这么简单：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Shape</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Circle</span>();<br></code></pre></td></tr></table></figure>
-
-<p>这里，创建了一个Circle对象，并把得到的引用立即赋值给Shape，这样看似错误，但实际上是没问题的。因为通过继承，Circle就是一种Shape。</p>
-<p>​    假设你调用一个基类方法(它已在导出类被覆盖):</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">s.draw();<br></code></pre></td></tr></table></figure>
-
-<p>你可能再次认为调用的是Shape的draw(),因为这毕竟是一个Shape引用，那么编辑器是怎么知道</p>
-<p>去做其他事情呢？由于后期绑定（多态），还是正确调用了Circle.draw()方法。</p>
-<p>​    下面的例子稍微有所不同：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Shape</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>&#123;&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">erase</span><span class="hljs-params">()</span>&#123;&#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Circle</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Shape</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>&#123;	print(<span class="hljs-string">&quot;Circle.draw&quot;</span>)&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">erase</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Circle.erase&quot;</span>)&#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Square</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Shape</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Square.draw&quot;</span>)&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">erase</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Square.erase&quot;</span>)&#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Triangle</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Shape</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Triangle.draw&quot;</span>)&#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">erase</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;Triangle.erase&quot;</span>)&#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RandomShapeGenerator</span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">Random</span> <span class="hljs-variable">rand</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Random</span>(<span class="hljs-number">47</span>);<br>    <span class="hljs-keyword">public</span> shape <span class="hljs-title function_">next</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">switch</span>(rand.nextInt(<span class="hljs-number">3</span>))&#123;<br>            <span class="hljs-keyword">default</span>:<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">0</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Circle</span>();<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Square</span>();<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>: <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Triangle</span>();<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Shapes</span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">RandomShapeGenerator</span> <span class="hljs-variable">gen</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RandomShapeGenerator</span>();<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>        Shape[] s = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Shape</span>[<span class="hljs-number">9</span>];<br>       	<span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;i&lt;s.length;i++)<br>            s[i] = gen.next();<br>        <span class="hljs-keyword">for</span>(Shape shp: s)<br>            shp.draw();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>​    Shape基类为自它那里继承而来的所有导出类建立了一个公共接口——也就是说，所有形状都可以描绘和擦除。导出类通过覆盖这些定义，来为每种特殊类型的几何形状提供单独的行为。</p>
-<p>​    RandomShapeGenerator是一种“工厂”(factory)，在我们每次调用next()方法时，它可以为随机选择的Shape对象产生一个引用。请注意向上转型时在return语句里发生的。每个return语句取得一个指向某个Circle、Square或者Triangle的引用，并将其以Shape类型从next()方法中发送出去。所以无论我们在什么时候调用next()方法时，是绝对不可能知道具体类型到底是什么的，因为我们总是只能获得一个通用的Shape引用。</p>
-<p>​    main()包含了一个Shape引用组成的数组，通过调用RandomShapeGenerator.next()来填入数据。此时，我们只知道自己拥有一些Shape，除此之外不会知道更具体的情况(编译器也不知道)。然而，当我们遍历这个数组，并为每个数组元素调用draw()方法时，与类型有关的特定行为为神器的发生，我们可以从运行该程序时所产生的输出结果中发现这一点。</p>
-<p>​    随机选择几何形状是为了让大家理解：在编译时，编译器不需要获得任何特殊信息就能进行正确的调用。对draw()方法的所有调用都是通过动态绑定进行的。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>​    多态意味着“不同的形式”。在面向对象的程序设计中，我们持有从基类继承而来的相同接口，以及使用该接口的不同形式：不同版本的动态绑定方法。</p>
-<p>​    在本章中我们已经知道，如果不运用数据抽象和继承，就不可能理解或者甚至不可能创建多态的例子。多态是一种不能单独来看待的特性，相反它只能作为类关系“全景”中的一部分，与其他特性协同工作。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/04/22/finalandstatic/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/04/22/finalandstatic/" class="post-title-link" itemprop="url">final和static关键字</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-04-22 16:00:38" itemprop="dateCreated datePublished" datetime="2022-04-22T16:00:38+08:00">2022-04-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-04-28 14:05:00" itemprop="dateModified" datetime="2022-04-28T14:05:00+08:00">2022-04-28</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="final参数"><a href="#final参数" class="headerlink" title="final参数"></a>final参数</h3><p> Java允许在参数列表中以声明的方式将参数指明为final。这意味着你无法在方法中更改参数引用所指向的对象：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Gizmo</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">spin</span><span class="hljs-params">()</span>&#123;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FinalArguments</span>&#123;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">with</span><span class="hljs-params">(<span class="hljs-keyword">final</span> Gizmo g)</span>&#123;<br>        <span class="hljs-comment">//! g = new Gizmo(); // Illegal -- g is final</span><br>    &#125;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">without</span><span class="hljs-params">(Gizmo g)</span>&#123;<br>        g = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Gizmo</span>(); <span class="hljs-comment">//ok -- g not final</span><br>        g.spin();<br>    &#125;<br>    <span class="hljs-comment">//void f(final int i)&#123;i++;&#125; //can&#x27;t change</span><br>    <span class="hljs-comment">//you can only read from final primitive:</span><br>    <span class="hljs-type">int</span> <span class="hljs-title function_">g</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-type">int</span> i)</span>&#123;<br>        <span class="hljs-keyword">return</span> i+<span class="hljs-number">1</span>;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>        <span class="hljs-type">FinalArguments</span> <span class="hljs-variable">bf</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FinalArguments</span>();<br>        bf.without(<span class="hljs-literal">null</span>);<br>        bf.with(<span class="hljs-literal">null</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>方法f()和g()展示了当基本类型的参数被指明为final时所出现的结果：你可以读参数，但却无法修改参数。这一特性主要用来向匿名内部类传递数据。</p>
-<h3 id="final方法"><a href="#final方法" class="headerlink" title="final方法"></a>final方法</h3><p>​    使用final方法的原因有两个。1、把方法锁定，以防任何继承类修改它的含义。这是出于设计的考虑：想要确保在继承中使方法行为保持不变，并且不会被覆盖。</p>
-<p>​    过去建议使用final方法的第二个原因是效率。在Java的早期实现中，如果将一个方法指明为final，就是同意编译器将针对该方法的所有调用都转为内嵌调用。当编译器发现一个final方法调用命令时，它会根据自己的谨慎判断，跳过插入程序代码这种正常方式而执行方法调用机制（将参数压入栈，跳至方法代码处执行，然后跳回并清理栈中的参数，处理返回值），并且以方法体中的实际代码的副本来代替方法调用。这将消除方法调用的开销。当然，如果一个方法很大，你的程序代码就会膨胀，因而可能看不到内嵌带来的任何性能提高。因为，所带来的性能提高会因为花费于方法内的时间量而被缩减。</p>
-<p>​    在最近的Java版本中，虚拟机（特别时hotspot技术）可以探测到这些情况，并优化去掉这些效率反而降低的额外的内嵌调用，因此不再需要使用final方法来进行优化了。事实上，这种做法正在逐渐地收到劝阻。在使用Java SE5&#x2F;6时，应该让编译器和JVM去处理效率问题，只有在想要明确禁止覆盖时，才将方法设置为final的。</p>
-<h5 id="final和private关键字"><a href="#final和private关键字" class="headerlink" title="final和private关键字"></a>final和private关键字</h5><p>​    类中所有的private方法都隐式地指定为是final的。由于无法取用private方法，所以也就无法覆盖它。可以对private方法添加final修饰词，但这并不能给该方法增加任何额外的意义。</p>
-<p>​    这一问题会造成混淆。因为，如果你试图覆盖一个private方法（隐含是final的），似乎是奏效的，而且编译器也不会给出错误信息：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">WithFinals</span>&#123;<br>    <span class="hljs-comment">// Identical to &quot;private&quot; alone</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">f</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;WithFinals.f()&quot;</span>);&#125;<br>    <span class="hljs-comment">// Also automatically &quot;final&quot;</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">g</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;WithFinals.g()&quot;</span>);&#125;<br>&#125;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">OverridingPrivate</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">WithFinals</span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">f</span><span class="hljs-params">()</span>&#123;<br>        print(<span class="hljs-string">&quot;OverridingPrivate.f()&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">g</span><span class="hljs-params">()</span>&#123;<br>        print(<span class="hljs-string">&quot;OverridingPrivate.g()&quot;</span>);<br>    &#125;<br>&#125;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">OverridingPrivate2</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">OverridingPrivate</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">f</span><span class="hljs-params">()</span>&#123;<br>        print(<span class="hljs-string">&quot;OverridingPrivate2.f()&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">g</span><span class="hljs-params">()</span>&#123;<br>        print(<span class="hljs-string">&quot;OverridingPrivate2.g()&quot;</span>);<br>    &#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FinalOverridingIllusion</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>        <span class="hljs-type">OverridingPrivate2</span> <span class="hljs-variable">op2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OverridingPrivate2</span>();<br>        op2.f();<br>        op2.g();<br>        <span class="hljs-comment">// you can upcast:</span><br>        <span class="hljs-type">OverridingPrivate</span> <span class="hljs-variable">op</span> <span class="hljs-operator">=</span> op2;<br>        <span class="hljs-comment">//but you can&#x27;t	call the methods:</span><br>        <span class="hljs-comment">//! op.f();</span><br>        <span class="hljs-comment">//! op.g();</span><br>        <span class="hljs-comment">// same here:</span><br>        <span class="hljs-type">WithFinals</span> <span class="hljs-variable">wf</span> <span class="hljs-operator">=</span> op2;<br>        <span class="hljs-comment">//! wf.f();</span><br>        <span class="hljs-comment">//! wf.g();</span><br>    &#125;<br>&#125;<br><span class="hljs-comment">/* Output:</span><br><span class="hljs-comment">OverridingPrivate2.f()</span><br><span class="hljs-comment">OverridingPrivate2.g()</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
-
-<p>”覆盖”只有在某方法是基类的接口的一部分时才会出现。即，必须能将一个对象向上转型为它的基本类型并调用相同的方法。如果某方法为private，他就不是基类接口的一部分。他仅是一些隐藏于类中的程序代码，只不过时具有相同的名称而已。但如果在导出类中以相同的名称生成一个public、protected或包访问权限方法的话，该方法就不会产生在基类中出现的“仅具有相同名称”的情况。此时你并没有覆盖该方法，仅是生成了一个新的方法。由于private方法无法触及而且能有效隐藏，所以除了把它看成时因为它所归属的类的组织结构的原因而存在外，其他任何事物都不需要考虑到它。</p>
-<h3 id="final类"><a href="#final类" class="headerlink" title="final类"></a>final类</h3><p>​    当将某个类的整体定义为final时，就表明了你不打算继承该类。而且也不允许别人这么做。换句话说，出于某种考虑，你对该类的设计用不需要做任何变动，或者出于安全考虑，你不希望它有子类。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">SmallBrain</span>&#123;&#125;<br><br><span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Dinosaur</span>&#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">7</span>;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br>    <span class="hljs-type">SmallBrain</span> <span class="hljs-variable">x</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SmallBrain</span>();<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">f</span><span class="hljs-params">()</span>&#123;&#125;<br>    <br>    <span class="hljs-comment">//! class Further extends DinoSaur&#123;&#125;</span><br>    <span class="hljs-comment">// error:Can&#x27;t extend final class &#x27;Dinosaur&#x27;</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Jurassic</span>&#123;<br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>            <span class="hljs-type">Dinosaur</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dinosaur</span>();<br>            n.f();<br>            n.i = <span class="hljs-number">40</span>;<br>            n.j++;<br>        &#125;<br>    &#125;<br>  	<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>​    请注意，final类的域可以根据个人的意愿选择为是或不是final。不论类是否被定义为final，相同的规则都适用于定义为final的域。然而，由于final类禁止继承，所以final类中所有的方法都会隐式指定为final的，因为无法覆盖它们。在final类中可以给方法添加final修饰词，但这不会增添任何意义。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1275,7 +1292,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

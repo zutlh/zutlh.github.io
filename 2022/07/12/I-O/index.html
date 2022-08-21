@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zutlh.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="I&#x2F;0模型BIO同步并阻塞，服务器实现模式：一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销。 适用场景：连接数目较小且固定的架构，JDK1.4以前的唯一选择，优点：程序简单易理解。   NIO同步非阻塞，服务器实现模式：一个线程处理多个请求，即客户端发送的连接请求都会注册到多路复用器上，多路复用器轮询访问每个通道，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="I&#x2F;O">
+<meta property="og:url" content="http://zutlh.top/2022/07/12/I-O/index.html">
+<meta property="og:site_name" content="山海经">
+<meta property="og:description" content="I&#x2F;0模型BIO同步并阻塞，服务器实现模式：一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销。 适用场景：连接数目较小且固定的架构，JDK1.4以前的唯一选择，优点：程序简单易理解。   NIO同步非阻塞，服务器实现模式：一个线程处理多个请求，即客户端发送的连接请求都会注册到多路复用器上，多路复用器轮询访问每个通道，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.imagehub.cc/images/2022/07/12/image.png">
+<meta property="og:image" content="c:/Users/Liu%20Hao/AppData/Roaming/Typora/typora-user-images/image-20220712162458984.png">
+<meta property="og:image" content="https://s1.imagehub.cc/images/2022/07/13/image.png">
+<meta property="og:image" content="https://s1.imagehub.cc/images/2022/07/13/imagedaa94014ae700085.png">
+<meta property="article:published_time" content="2022-07-12T08:18:00.000Z">
+<meta property="article:modified_time" content="2022-07-14T03:47:32.850Z">
+<meta property="article:author" content="Liu Hao">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.imagehub.cc/images/2022/07/12/image.png">
+
+<link rel="canonical" href="http://zutlh.top/2022/07/12/I-O/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>I/O | 山海经</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">山海经</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/07/12/I-O/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          I/O
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-07-12 16:18:00" itemprop="dateCreated datePublished" datetime="2022-07-12T16:18:00+08:00">2022-07-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-14 11:47:32" itemprop="dateModified" datetime="2022-07-14T11:47:32+08:00">2022-07-14</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="I-x2F-0模型"><a href="#I-x2F-0模型" class="headerlink" title="I&#x2F;0模型"></a>I&#x2F;0模型</h2><h3 id="BIO"><a href="#BIO" class="headerlink" title="BIO"></a>BIO</h3><p><strong>同步并阻塞</strong>，服务器实现模式：一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销。</p>
+<p>适用场景：连接数目较小且固定的架构，JDK1.4以前的唯一选择，优点：程序简单易理解。</p>
+<img src="https://s1.imagehub.cc/images/2022/07/12/image.png" alt="image.png" style="zoom: 67%;" />
+
+<h3 id="NIO"><a href="#NIO" class="headerlink" title="NIO"></a>NIO</h3><p><strong>同步非阻塞</strong>，服务器实现模式：一个线程处理多个请求，即客户端发送的连接请求都会注册到多路复用器上，多路复用器轮询访问每个通道，有I&#x2F;O请求就进行处理。</p>
+<p>适用场景：连接数目多且连接比较短（轻操作）的架构，例：聊天服务器，弹幕系统。编程比较复杂。</p>
+<img src="C:\Users\Liu Hao\AppData\Roaming\Typora\typora-user-images\image-20220712162458984.png" alt="image-20220712162458984" style="zoom:67%;" />
+
+<h3 id="AIO"><a href="#AIO" class="headerlink" title="AIO"></a>AIO</h3><p>AIO(NIO.2):异步，<strong>异步非阻塞</strong>，实现模式：一个有效请求一个线程，客户端的I&#x2F;O请求都是由OS先完成了再通知服务器去启动线程进行处理，一般适用于连接数较多且连接时间较长的应用</p>
+<p>适用场景：连接数目多且连接比较长（重操作）的架构，例：相册服务器。编程比较复杂。</p>
+<h2 id="NIO深入剖析"><a href="#NIO深入剖析" class="headerlink" title="NIO深入剖析"></a>NIO深入剖析</h2><ul>
+<li>NIO三大核心：Channel通道，Buffer缓冲区，Selector选择器</li>
+</ul>
+<h3 id="NIO和BIO的比较"><a href="#NIO和BIO的比较" class="headerlink" title="NIO和BIO的比较"></a>NIO和BIO的比较</h3><ul>
+<li>BIO以流的方式处理数据，NIO以块的方式处理数据，所以NIO效率更高</li>
+<li>BIO是阻塞的，NIO是非阻塞的</li>
+<li>BIO基于字节流和字符流进行操作，NIO基于Channel和Buffer</li>
+</ul>
+<p>为什么BIO是同步阻塞的，NIO是非阻塞的呢？</p>
+<p>因为在BIO实现模式下，一个请求对应一个线程，当客户端没有发送请求时，服务端的读线程也会一直等待，进入同步阻塞状态。NIO发现没有数据的时候是不会去等待的，所以是非阻塞的。</p>
+<h3 id="NIO三大核心原理示意图"><a href="#NIO三大核心原理示意图" class="headerlink" title="NIO三大核心原理示意图"></a>NIO三大核心原理示意图</h3><h4 id="Buffer缓冲区"><a href="#Buffer缓冲区" class="headerlink" title="Buffer缓冲区"></a>Buffer缓冲区</h4><p>缓冲区本质是一块可以写入数据，然后可以从中读取数据的内存。这块内存被包装成NIO Buffer对象，并提供了一组方法，用来方便的访问该块内存。相比较直接操作数组，Buffer API更加容易操作和管理。</p>
+<h4 id="Channel（通道）"><a href="#Channel（通道）" class="headerlink" title="Channel（通道）"></a>Channel（通道）</h4><p>Java NIO的通道类似流，但不同点是：既可以从通道中读取数据，又可以写数据到通道。但流读写通常是单向的。通道可以非阻塞读取和写入，可以支持读取或写入缓冲区，也支持异步地读写。</p>
+<h4 id="Selector选择器"><a href="#Selector选择器" class="headerlink" title="Selector选择器"></a>Selector选择器</h4><p>Selector是一个Java NIO组件，可以能够检查一个或多个NIO通道，并确定哪些通道已经准备好读取或写入。一个单独线程可以管理多个Selector</p>
+<img src="https://s1.imagehub.cc/images/2022/07/13/image.png" alt="image.png" style="zoom:50%;" />
+
+<ul>
+<li>每个channel对应一个buffer</li>
+<li>一个线程对应一个Selector，一个Selector对应多个channel</li>
+<li>程序切换到哪个channel是由事件决定的</li>
+<li>Selector会根据不同的事件，在各个通道上切换</li>
+<li>Buffer就是一个内存块，底层是一个数组</li>
+<li>数据的读写是通过Buffer完成的，BIO中要么是输入流，或者是输出流，不能双向，但是NIO的Buffer是可以读也可以写。<ul>
+<li>NIO系统的核心在于：channel和buffer，channel表示打开到IO设备的连接。若要试用NIO系统，需要获取用于连接IO设备的通道以及用于容纳数据的缓冲区。然后操作缓冲区，对数据进行处理。简而言之，channel负责传输，buffer负责存取数据。</li>
+</ul>
+</li>
+</ul>
+<h3 id="NIO核心一：缓冲区（Buffer）"><a href="#NIO核心一：缓冲区（Buffer）" class="headerlink" title="NIO核心一：缓冲区（Buffer）"></a>NIO核心一：缓冲区（Buffer）</h3><h4 id="缓冲区Buffer"><a href="#缓冲区Buffer" class="headerlink" title="缓冲区Buffer"></a>缓冲区Buffer</h4><p>一个用于特定基本数据类型的容器，所有缓冲区都是Buffer抽象类的子类。Java NIO中的Buffer主要用于NIO通道进行交互。</p>
+<p><img src="https://s1.imagehub.cc/images/2022/07/13/imagedaa94014ae700085.png" alt="imagedaa94014ae700085.png"></p>
+<h4 id="Buffer类及其子类"><a href="#Buffer类及其子类" class="headerlink" title="Buffer类及其子类"></a>Buffer类及其子类</h4><p>Buffer就像一个数组，可以保存多个相同类型的数据，根据数据类型不同，由一下Buffer常用子类：</p>
+<ul>
+<li><p>ByteBuffer</p>
+</li>
+<li><p>CharBuffer</p>
+</li>
+<li><p>ShortBuffer</p>
+</li>
+<li><p>IntBuffer</p>
+<p>…..</p>
+</li>
+</ul>
+<h4 id="缓冲区的基本属性"><a href="#缓冲区的基本属性" class="headerlink" title="缓冲区的基本属性"></a>缓冲区的基本属性</h4><ul>
+<li>容量(capacity)：Buffer的大小，不能为负，创建后不能更改</li>
+<li>限制(limit): 表示缓冲区可以操作数据的大小(limit后数据不能进行读写)，不能为负，不能大于容量。<strong>写入模式，限制等于buffer的容量，读取模式，limit等于写入 的数据量</strong></li>
+<li>位置(position)：下一个要读取或写入的数据的索引</li>
+<li>标记(mark)与重置(reset)：通过Buffer中的mark()方法指定Buffer中一个特定的position，之后可以通过调用reset()方法恢复到这个position。</li>
+</ul>
+<h4 id="常见方法"><a href="#常见方法" class="headerlink" title="常见方法"></a>常见方法</h4><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-built_in">rewind</span>()方法<br>Buffer<span class="hljs-selector-class">.rewind</span>()将<span class="hljs-attribute">position</span>设回<span class="hljs-number">0</span>，所以你可以重读Buffer中的所有数据。limit保持不变，仍然表示能从Buffer中读取多少个元素（byte、char等）。<br><br><span class="hljs-built_in">flip</span>()方法<br>flip方法将Buffer从写模式切换到读模式。调用<span class="hljs-built_in">flip</span>()方法会将<span class="hljs-attribute">position</span>设回<span class="hljs-number">0</span>，并将limit设置成之前<span class="hljs-attribute">position</span>的值。<br>换句话说，<span class="hljs-attribute">position</span>现在用于标记读的位置，limit表示之前写进了多少个byte、char等 —— 现在能读取多少个byte、char等<br><br><span class="hljs-attribute">clear</span>()与<span class="hljs-built_in">compact</span>()方法<br> 一旦读完Buffer中的数据，需要让Buffer准备好再次被写入。可以通过<span class="hljs-attribute">clear</span>()或<span class="hljs-built_in">compact</span>()方法来完成。<br><br>如果调用的是<span class="hljs-attribute">clear</span>()方法，<span class="hljs-attribute">position</span>将被设回<span class="hljs-number">0</span>，limit被设置成 capacity的值。换句话说，Buffer 被清空了。Buffer中的数据并未清除，只是这些标记告诉我们可以从哪里开始往Buffer里写数据。<br><br>如果Buffer中有一些未读的数据，调用<span class="hljs-attribute">clear</span>()方法，数据将“被遗忘”，意味着不再有任何标记会告诉你哪些数据被读过，哪些还没有。<br><br>如果Buffer中仍有未读的数据，且后续还需要这些数据，但是此时想要先写些数据，那么使用<span class="hljs-built_in">compact</span>()方法。<br><br><span class="hljs-built_in">compact</span>()方法将所有未读的数据拷贝到Buffer起始处。然后将<span class="hljs-attribute">position</span>设到最后一个未读元素正后面。limit属性依然像<span class="hljs-attribute">clear</span>()方法一样，设置成capacity。现在Buffer准备好写数据了，但是不会覆盖未读的数据。<br><br><span class="hljs-selector-tag">mark</span>()与<span class="hljs-built_in">reset</span>()方法<br>通过调用Buffer<span class="hljs-selector-class">.mark</span>()方法，可以标记Buffer中的一个特定<span class="hljs-attribute">position</span>。之后可以通过调用Buffer<span class="hljs-selector-class">.reset</span>()方法恢复到这个<span class="hljs-attribute">position</span>。例如：<br>buffer<span class="hljs-selector-class">.mark</span>(); <span class="hljs-comment">//添加标记</span><br>buffer<span class="hljs-selector-class">.reset</span>();<span class="hljs-comment">//恢复到标记位置</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="缓冲区的数据操作"><a href="#缓冲区的数据操作" class="headerlink" title="缓冲区的数据操作"></a>缓冲区的数据操作</h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs stylus">Buffer所有子类提供了两个用于数据操作的方法：<span class="hljs-built_in">get</span>(),<span class="hljs-built_in">put</span>()<br>取Buffer中的数据<br><span class="hljs-function"><span class="hljs-title">get</span><span class="hljs-params">()</span></span> 读取单个字节<br><span class="hljs-function"><span class="hljs-title">get</span><span class="hljs-params">(byte[] dst)</span></span> 批量读取多个字节到dst中<br><span class="hljs-function"><span class="hljs-title">get</span><span class="hljs-params">(int index)</span></span> 读取指定索引位置的字节(不会移动<span class="hljs-attribute">position</span>)<br><br>放入数据到Buffer<br><span class="hljs-function"><span class="hljs-title">put</span><span class="hljs-params">(byte b)</span></span> 将给定单个字节写入到缓冲区的当前位置<br><span class="hljs-function"><span class="hljs-title">put</span><span class="hljs-params">(byte[] src)</span></span> 将<span class="hljs-attribute">src</span>中的字节写入到缓冲区的当前位置<br><span class="hljs-function"><span class="hljs-title">put</span><span class="hljs-params">(int index,byte b)</span></span> 将给定字节写入到指定位置<br></code></pre></td></tr></table></figure>
+
+<h5 id="试用Buffer读写数据一般遵循一下四个步骤"><a href="#试用Buffer读写数据一般遵循一下四个步骤" class="headerlink" title="试用Buffer读写数据一般遵循一下四个步骤"></a>试用Buffer读写数据一般遵循一下四个步骤</h5><ul>
+<li>写数据到Buffer</li>
+<li>调用filp()方法，转换为读取模式</li>
+<li>从Buffer中读数据</li>
+<li>调用buffer.clear()方法或者compact()方法清楚缓冲区</li>
+</ul>
+<h3 id="NIO核心二：通道-Channel"><a href="#NIO核心二：通道-Channel" class="headerlink" title="NIO核心二：通道(Channel)"></a>NIO核心二：通道(Channel)</h3><h4 id="通道概述"><a href="#通道概述" class="headerlink" title="通道概述"></a>通道概述</h4><p>通道Channel：Channel表示IO源与目标打开的连接。Channel类似于传统的流。不过Channel本身不能直接访问数据，Channel只能与Buffer进行交互。</p>
+<p>1、NIO的通道类似于流，但有如下区别：</p>
+<ul>
+<li>通道可以同时进行读写，而流只能读或写。</li>
+<li>通道可以实现异步读写数据</li>
+<li>通道可以从缓冲读数据，也可以写数据到缓冲。</li>
+</ul>
+<p>2、BIO的stream是单向的，例如FileInputStream对象只能进行读取数据的操作，而NIO中的通道（Channel）是双向的，可读可写。</p>
+<p>3、Channel在NIO中是一个接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Channel</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">closeable</span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="常见的Channel实现类"><a href="#常见的Channel实现类" class="headerlink" title="常见的Channel实现类"></a>常见的Channel实现类</h4><ul>
+<li>FileChannel:用于读写、映射、操作文件</li>
+<li>DatagramChannel：通过UDP读写网络中的数据通道。</li>
+<li>SocketChannel：通过TCP读写网络中的数据。</li>
+<li>ServerSocketChannel：可以监听新进来的TCP连接，对每一个新进来的连接都会创建一个SocketChannel。ServerSocketChannel类似于ServerSocket，SocketChannel类似于Socket</li>
+</ul>
+<h4 id="FileChannel类"><a href="#FileChannel类" class="headerlink" title="FileChannel类"></a>FileChannel类</h4><p>获取通道的一种方式是对支持通道的对象调用getChannel()方法。</p>
+<h3 id="NIO核心三：选择器-Selector"><a href="#NIO核心三：选择器-Selector" class="headerlink" title="NIO核心三：选择器(Selector)"></a>NIO核心三：选择器(Selector)</h3><h4 id="选择器概述"><a href="#选择器概述" class="headerlink" title="选择器概述"></a>选择器概述</h4><p>Selector是SelectableChannle对象的多路复用器，Selector可以同时监控多个SelectableChannel的IO状况，也就是说，利用Selector可使一个单独的线程管理多个Channel。Selector是非阻塞IO的核心</p>
+<ul>
+<li>通过一个线程处理多个客户端连接，就会用到Selector</li>
+<li>只有在连接&#x2F;通道真正有读写事件发生时，才会进行读写，就大大减少系统开销</li>
+<li>避免多线程之间的上下文切换导致的开销</li>
+</ul>
+<h4 id="Selector应用"><a href="#Selector应用" class="headerlink" title="Selector应用"></a>Selector应用</h4><p>创建Selector</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Selector</span> <span class="hljs-variable">selector</span> <span class="hljs-operator">=</span> Selector.open();<br></code></pre></td></tr></table></figure>
+
+<p>向选择器注册通道：SelectableChannel.register(Selector sel.int ops)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//1、获取通道</span><br><span class="hljs-type">ServerSocketChannel</span> <span class="hljs-variable">ssChanel</span> <span class="hljs-operator">=</span> ServerSocketChannel.open();<br><span class="hljs-comment">//2、切换非阻塞模式</span><br>ssChannel.configurelocking(<span class="hljs-literal">false</span>);<br><span class="hljs-comment">//3、绑定连接</span><br>ssChannel.bind(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InetSocketAddress</span>(<span class="hljs-number">9898</span>));<br><span class="hljs-comment">//4、获取选择器</span><br><span class="hljs-type">Selector</span> <span class="hljs-variable">selector</span> <span class="hljs-operator">=</span> Selector.open();<br><span class="hljs-comment">//5、将通道注册到选择器上，并且指定监听接收事件</span><br>ssChannel.register(selector,SelectionKey.OP_ACCEPT);<br></code></pre></td></tr></table></figure>
+
+<p>可监听的事件类型：</p>
+<ul>
+<li>读：SelectionKey.OP_READ</li>
+<li>写：SelectionKey.OP_WRITE</li>
+<li>连接：SelectionKey.OP_CONNECT</li>
+<li>接收：SelectionKey.OP_ACCEPT</li>
+</ul>
+<h3 id="NIO非阻塞式网络通信原理分析"><a href="#NIO非阻塞式网络通信原理分析" class="headerlink" title="NIO非阻塞式网络通信原理分析"></a>NIO非阻塞式网络通信原理分析</h3><p>服务端流程</p>
+<ul>
+<li>当客户端连接服务端时，服务端会通过ServerSocketChannel得到SocketChannel</li>
+<li>切换非阻塞模式</li>
+<li>绑定连接</li>
+<li>获取选择器</li>
+<li>将通道注册到选择器上，并指定监听事件</li>
+<li>轮询获取选择器上的已经准备就绪的事件</li>
+</ul>
+<p>客户端流程</p>
+<ul>
+<li>获取通道</li>
+<li>切换非阻塞模式</li>
+<li>分配指定大小的缓冲区</li>
+<li>发送数据给服务端</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/11/ReentrantLock%E5%8E%9F%E7%90%86/" rel="prev" title="ReentrantLock原理">
+      <i class="fa fa-chevron-left"></i> ReentrantLock原理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/14/TCP-IP%E5%8D%8F%E8%AE%AE%EF%BC%8CHTTP%E5%8D%8F%E8%AE%AE%E7%AD%89%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/" rel="next" title="TCP/IP协议，HTTP协议等相关概念">
+      TCP/IP协议，HTTP协议等相关概念 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#I-x2F-0%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">I&#x2F;0模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BIO"><span class="nav-number">1.1.</span> <span class="nav-text">BIO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NIO"><span class="nav-number">1.2.</span> <span class="nav-text">NIO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AIO"><span class="nav-number">1.3.</span> <span class="nav-text">AIO</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NIO%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">NIO深入剖析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#NIO%E5%92%8CBIO%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">2.1.</span> <span class="nav-text">NIO和BIO的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NIO%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E7%A4%BA%E6%84%8F%E5%9B%BE"><span class="nav-number">2.2.</span> <span class="nav-text">NIO三大核心原理示意图</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Buffer%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">2.2.1.</span> <span class="nav-text">Buffer缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Channel%EF%BC%88%E9%80%9A%E9%81%93%EF%BC%89"><span class="nav-number">2.2.2.</span> <span class="nav-text">Channel（通道）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Selector%E9%80%89%E6%8B%A9%E5%99%A8"><span class="nav-number">2.2.3.</span> <span class="nav-text">Selector选择器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NIO%E6%A0%B8%E5%BF%83%E4%B8%80%EF%BC%9A%E7%BC%93%E5%86%B2%E5%8C%BA%EF%BC%88Buffer%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">NIO核心一：缓冲区（Buffer）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%93%E5%86%B2%E5%8C%BABuffer"><span class="nav-number">2.3.1.</span> <span class="nav-text">缓冲区Buffer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Buffer%E7%B1%BB%E5%8F%8A%E5%85%B6%E5%AD%90%E7%B1%BB"><span class="nav-number">2.3.2.</span> <span class="nav-text">Buffer类及其子类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%93%E5%86%B2%E5%8C%BA%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%B1%9E%E6%80%A7"><span class="nav-number">2.3.3.</span> <span class="nav-text">缓冲区的基本属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%96%B9%E6%B3%95"><span class="nav-number">2.3.4.</span> <span class="nav-text">常见方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%93%E5%86%B2%E5%8C%BA%E7%9A%84%E6%95%B0%E6%8D%AE%E6%93%8D%E4%BD%9C"><span class="nav-number">2.3.5.</span> <span class="nav-text">缓冲区的数据操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AF%95%E7%94%A8Buffer%E8%AF%BB%E5%86%99%E6%95%B0%E6%8D%AE%E4%B8%80%E8%88%AC%E9%81%B5%E5%BE%AA%E4%B8%80%E4%B8%8B%E5%9B%9B%E4%B8%AA%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.3.5.1.</span> <span class="nav-text">试用Buffer读写数据一般遵循一下四个步骤</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NIO%E6%A0%B8%E5%BF%83%E4%BA%8C%EF%BC%9A%E9%80%9A%E9%81%93-Channel"><span class="nav-number">2.4.</span> <span class="nav-text">NIO核心二：通道(Channel)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%9A%E9%81%93%E6%A6%82%E8%BF%B0"><span class="nav-number">2.4.1.</span> <span class="nav-text">通道概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84Channel%E5%AE%9E%E7%8E%B0%E7%B1%BB"><span class="nav-number">2.4.2.</span> <span class="nav-text">常见的Channel实现类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FileChannel%E7%B1%BB"><span class="nav-number">2.4.3.</span> <span class="nav-text">FileChannel类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NIO%E6%A0%B8%E5%BF%83%E4%B8%89%EF%BC%9A%E9%80%89%E6%8B%A9%E5%99%A8-Selector"><span class="nav-number">2.5.</span> <span class="nav-text">NIO核心三：选择器(Selector)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E5%99%A8%E6%A6%82%E8%BF%B0"><span class="nav-number">2.5.1.</span> <span class="nav-text">选择器概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Selector%E5%BA%94%E7%94%A8"><span class="nav-number">2.5.2.</span> <span class="nav-text">Selector应用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NIO%E9%9D%9E%E9%98%BB%E5%A1%9E%E5%BC%8F%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90"><span class="nav-number">2.6.</span> <span class="nav-text">NIO非阻塞式网络通信原理分析</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Liu Hao</p>
+  <div class="site-description" itemprop="description">记录身边的贵物</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Liu Hao</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
