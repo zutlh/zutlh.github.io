@@ -147,989 +147,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/30/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/30/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81/" class="post-title-link" itemprop="url">线程状态</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-30 16:54:15" itemprop="dateCreated datePublished" datetime="2022-06-30T16:54:15+08:00">2022-06-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-01 11:18:35" itemprop="dateModified" datetime="2022-07-01T11:18:35+08:00">2022-07-01</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="五种状态"><a href="#五种状态" class="headerlink" title="五种状态"></a>五种状态</h3><p>这是从<strong>操作系统</strong>层面来描述的</p>
-<img src="https://s1.imagehub.cc/images/2022/06/30/image.png" alt="image.png" style="zoom: 67%;" />
-
-<ul>
-<li>【初始状态】 仅是在语言层面创建了对象，还未于操作系统线程关联。</li>
-<li>【可运行状态】（就绪状态）指该线程已经被创建（于操作系统线程关联），可以由CPU调度执行。</li>
-<li>【运行状态】指获取了CPU时间片运行中的状态。<ul>
-<li>当CPU时间片用完，会从【运行状态】转换至【可运行状态】，会导致线程的上下文切换</li>
-</ul>
-</li>
-<li>【阻塞状态】<ul>
-<li>如果调用了阻塞API，如BIO读写空间，这时该线程实际不会用到CPU，会导致线程上下文切换，进入【阻塞状态】</li>
-<li>等BIO操作完毕，会由操作系统唤醒阻塞的线程，转换至【可运行状态】</li>
-<li>与【可运行状态】的区别是，对【阻塞状态】的线程来说只要它们一直不唤醒，调度器就一直不会考虑调度他们</li>
-</ul>
-</li>
-<li>【终止状态】表示线程已经执行完毕，生命周期结束，不会再转换成其他状态。</li>
-</ul>
-<h3 id="六种状态"><a href="#六种状态" class="headerlink" title="六种状态"></a>六种状态</h3><p>这是从Java API层面来描述的</p>
-<p>根据Thread.State枚举，分为六种状态。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">State</span> &#123;<br><br>    NEW,<br><br>    RUNNABLE,<br><br>    BLOCKED,<br><br>    WAITING,<br><br>    TIMED_WAITING,<br><br>    TERMINATED;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<img src="https://s1.imagehub.cc/images/2022/06/30/imageb8e84a844ba83fb0.png" alt="imageb8e84a844ba83fb0.png" style="zoom:50%;" />
-
-<ul>
-<li><code>NEW </code>线程刚被创建，但是还没有调用<code>start()</code>方法</li>
-<li><code>RUNNABLE</code> 当调用了<code>start()</code>方法之后，注意，JAVA API层面的<code>RUNNABLE</code>状态涵盖了<strong>操作系统</strong>层面的【可运行状态】、【运行状态】和【阻塞状态】（由于BIO导致的线程阻塞，再JAVA里无法区分，仍然认为是可运行）</li>
-<li><code>BLOCKED WAITING TIMED_WAITING</code>都是JAVA API层面对【阻塞状态】的细分，后面会在状态转换一节详细阐述</li>
-<li><code>TERMINATED</code> 当线程代码运行结束</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/30/wait-notify%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/30/wait-notify%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">wait/notify原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-30 16:51:42" itemprop="dateCreated datePublished" datetime="2022-06-30T16:51:42+08:00">2022-06-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-06 14:53:48" itemprop="dateModified" datetime="2022-07-06T14:53:48+08:00">2022-07-06</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="wait-notify"><a href="#wait-notify" class="headerlink" title="wait notify"></a>wait notify</h2><h3 id="原理之wait-x2F-notify"><a href="#原理之wait-x2F-notify" class="headerlink" title="原理之wait&#x2F;notify"></a>原理之wait&#x2F;notify</h3><p>需要获取对象锁后才可以调用 <code>锁对象.wait()</code>，notify 随机唤醒一个线程，notifyAll 唤醒所有线程去竞争 CPU</p>
-<p>Object 类 API：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">notify</span><span class="hljs-params">()</span>:唤醒正在等待对象监视器的单个线程。<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">notifyAll</span><span class="hljs-params">()</span>:唤醒正在等待对象监视器的所有线程。<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">wait</span><span class="hljs-params">()</span>:导致当前线程等待，直到另一个线程调用该对象的notify()方法或 notifyAll()方法。<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">wait</span><span class="hljs-params">(<span class="hljs-type">long</span> timeout)</span>:有时限的等待, 到n毫秒后结束等待，或是被唤醒<br></code></pre></td></tr></table></figure>
-
-<p>说明：<strong>wait 是挂起线程，需要唤醒的都是挂起操作</strong>，阻塞线程可以自己去争抢锁，挂起的线程需要唤醒后去争抢锁</p>
-<p>底层原理：</p>
-<ul>
-<li>Owner 线程发现条件不满足，调用 wait 方法，即可进入 WaitSet 变为 WAITING 状态</li>
-<li>BLOCKED 和 WAITING 的线程都处于阻塞状态，不占用 CPU 时间片</li>
-<li>BLOCKED 线程会在 Owner 线程释放锁时唤醒</li>
-<li>WAITING 线程会在 Owner 线程调用 notify 或 notifyAll 时唤醒，唤醒后并不意味者立刻获得锁，<strong>需要进入 EntryList 重新竞争</strong></li>
-</ul>
-<p><img src="https://s1.imagehub.cc/images/2022/07/01/image7fdac09fa25871dc.png" alt="image7fdac09fa25871dc.png"></p>
-<h4 id="sleep-long-n-和-wait-long-n-的区别"><a href="#sleep-long-n-和-wait-long-n-的区别" class="headerlink" title="sleep(long n) 和 wait(long n)的区别"></a>sleep(long n) 和 wait(long n)的区别</h4><ul>
-<li>原理不同：sleep() 方法是属于 Thread 类，是线程用来控制自身流程的，使此线程暂停执行一段时间而把执行机会让给其他线程；wait() 方法属于 Object 类，用于线程间通信</li>
-<li>对<strong>锁的处理机制</strong>不同：调用 sleep() 方法的过程中，线程不会释放对象锁，当调用 wait() 方法的时候，线程会放弃对象锁，进入等待此对象的等待锁定池（不释放锁其他线程怎么抢占到锁执行唤醒操作），但是都会释放 CPU</li>
-<li>使用区域不同：wait() 方法必须放在<strong>同步控制方法和同步代码块（先获取锁）</strong>中使用，sleep() 方法则可以放在任何地方使用</li>
-</ul>
-<p><strong>共同点</strong></p>
-<ul>
-<li>状态一致：TIMED_WAITING</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException &#123;<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>        <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>            System.out.println(<span class="hljs-string">&quot;t1获得锁&quot;</span>);<br>            <span class="hljs-keyword">try</span> &#123;<br>                Thread.sleep(<span class="hljs-number">20000</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;<br>    &#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br>    Thread.sleep(<span class="hljs-number">10000</span>);<br>    <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>        System.out.println(<span class="hljs-string">&quot;获得锁&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">//输出</span><br>t1获得锁<br>在t1 sleep的时间内主线程无法获得obj的锁，而如果用wait,t1会释放锁，t2可以获得Obj的锁<br></code></pre></td></tr></table></figure>
-
-<h4 id="使用wait-notify的正确姿势："><a href="#使用wait-notify的正确姿势：" class="headerlink" title="使用wait notify的正确姿势："></a>使用wait notify的正确姿势：</h4><p>虚假唤醒：notify 只能随机唤醒一个 WaitSet 中的线程，这时如果有其它线程也在等待，那么就可能唤醒不了正确的线程</p>
-<p>解决方法：采用 notifyAll</p>
-<p>notifyAll 仅解决某个线程的唤醒问题，使用 if + wait 判断仅有一次机会，一旦条件不成立，无法重新判断</p>
-<p>解决方法：用 while + wait，当条件不成立，再次 wait</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">synchronized</span>(lock)&#123;<br>    <span class="hljs-keyword">while</span>(条件不成立)&#123;<br>        lock.wait();<br>    &#125;<br>    <span class="hljs-comment">//干活</span><br>&#125;<br><span class="hljs-keyword">synchronized</span>(lock)&#123;<br>    lock.notifyAll();<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/29/synchronized%E8%BF%9B%E9%98%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/29/synchronized%E8%BF%9B%E9%98%B6/" class="post-title-link" itemprop="url">synchronized进阶</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-29 14:26:12" itemprop="dateCreated datePublished" datetime="2022-06-29T14:26:12+08:00">2022-06-29</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-06-30 16:51:20" itemprop="dateModified" datetime="2022-06-30T16:51:20+08:00">2022-06-30</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="synchronized进阶"><a href="#synchronized进阶" class="headerlink" title="synchronized进阶"></a>synchronized进阶</h2><h3 id="1、轻量级锁"><a href="#1、轻量级锁" class="headerlink" title="1、轻量级锁"></a>1、轻量级锁</h3><p>轻量级锁的使用场景：如果一个对象虽然有多线程访问，但多线程访问的时间是错开的（也就是没有竞争），那么可以使用轻量级锁来优化。</p>
-<p>轻量级锁对使用者是透明的，即语法仍然是synchronized</p>
-<p>假设有两个同步方法块，利用同一个对象加锁</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">method1</span><span class="hljs-params">()</span>&#123;<br>            <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>                <span class="hljs-comment">// 同步块A</span><br>                method2();<br>            &#125;<br>        &#125;<br><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">method2</span><span class="hljs-params">()</span>&#123;<br>            <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>                <span class="hljs-comment">// 同步块B</span><br>            &#125;<br>        &#125;<br></code></pre></td></tr></table></figure>
-
-<ul>
-<li>创建锁记录(Lock Record)对象。每个线程的栈帧都会包含一个锁记录的结构，内部可以存储锁定对象的Mark Word</li>
-</ul>
-<img src="https://i.bmp.ovh/imgs/2022/06/29/20a51bea9e9c8dee.png" style="zoom:80%;" />
-
-<ul>
-<li>让锁记录中Object reference指向锁对象，并尝试用cas替换Object的Mark Word，将Mark Word的值存入锁记录</li>
-</ul>
-<img src="https://i.bmp.ovh/imgs/2022/06/29/3348f38b03a295c1.png" style="zoom: 80%;" />
-
-<ul>
-<li><p>如果cas替换成功，对象头中存储了锁记录地址和状态00，表示由该线程给对象加锁，这时图示如下：</p>
-<img src="https://i.bmp.ovh/imgs/2022/06/29/28c35171c885176c.png" style="zoom:80%;" />
-</li>
-<li><p>如果cas失败，有两种情况</p>
-<ul>
-<li>如果是其他线程已经持有了该Object的轻量级锁（Mark Word后两位为00），这时表明有竞争，进入锁膨胀过程</li>
-<li>如果是自己执行了synchronized锁重入（自己这个线程给同一个对象又加锁），那么再添加一条Lock Record作为重入的计数</li>
-</ul>
-</li>
-</ul>
-<img src="https://i.bmp.ovh/imgs/2022/06/29/38a776085ffb1d4f.png" style="zoom:80%;" />
-
-<ul>
-<li>当退出synchronized代码块时（解锁时）如果有取值为null的锁记录，表示有重入，这时重置锁记录，表示重入计数减一。</li>
-</ul>
-<img src="https://i.bmp.ovh/imgs/2022/06/29/0fe510bf0ffb501a.png" style="zoom:80%;" />
-
-<ul>
-<li>当退出synchronized代码块时（解锁时）锁记录的值不为null，这时使用Mark Word的值恢复给对象头<ul>
-<li>成功，则解锁成功</li>
-<li>失败，说明轻量级锁进行了锁膨胀或已经升级为重量级锁，进入重量级锁解锁流程。</li>
-</ul>
-</li>
-</ul>
-<h3 id="2、锁膨胀"><a href="#2、锁膨胀" class="headerlink" title="2、锁膨胀"></a>2、锁膨胀</h3><p>如果在尝试加轻量级锁的过程中，CAS操作无法成功，这时一种情况就是有其他线程为此对象加上了轻量级锁（有竞争），这时需要进行锁膨胀，将轻量级锁变为重量级锁。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">method1</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>        <span class="hljs-comment">//同步块</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<ul>
-<li><p>当Thread-1进行轻量级加锁时，Thread-0已经对该对象加了轻量级锁</p>
-<p><img src="https://s1.imagehub.cc/images/2022/06/29/1656487678553.png" alt="1656487678553.png"></p>
-</li>
-<li><p>这时Threa-1加轻量级锁失败，进入锁膨胀流程</p>
-<ul>
-<li>即为Object对象申请Monitor锁，让Object指向重量级锁地址(Mark Word后两位为10)</li>
-<li>然后自己进入Monitor的EntryList BlOCKED</li>
-</ul>
-</li>
-</ul>
-<p><img src="https://s1.imagehub.cc/images/2022/06/29/image64622f2a05987cd2.png" alt="image64622f2a05987cd2.png"></p>
-<ul>
-<li>当Thread-0退出同步代码块解锁时，使用cas将Mark Word的值恢复给对象头，失败。这时会进入重量级解锁流程，即按照Monitor地址找到Monitor对象，设置Owner为null，唤醒EntryList中BLOCKED线程，让Thread-1有机会获得这个对象。</li>
-</ul>
-<h3 id="3、自旋优化"><a href="#3、自旋优化" class="headerlink" title="3、自旋优化"></a>3、自旋优化</h3><p>重量级锁竞争的时候，还可以使用自旋（说白了就是循环，默认10此）来进行优化，如果当前线程自旋成功（即这时候锁线程已经退出了同步块，释放了锁），这时当前线程就可以避免阻塞。 </p>
-<p>注意：</p>
-<ul>
-<li>自旋占用 CPU 时间，单核 CPU 自旋就是浪费时间，因为同一时刻只能运行一个线程，多核 CPU 自旋才能发挥优势</li>
-<li>自旋失败的线程会进入阻塞状态</li>
-</ul>
-<p>优点：不会进入阻塞状态，<strong>减少线程上下文切换的消耗</strong></p>
-<p>缺点：当自旋的线程越来越多时，会不断的消耗 CPU 资源</p>
-<p>自旋重试成功的情况</p>
-<p><img src="https://s1.imagehub.cc/images/2022/06/29/image2cdcd976cb2cea70.png" alt="image2cdcd976cb2cea70.png"></p>
-<p>自旋失败的情况：</p>
-<p><img src="https://s1.imagehub.cc/images/2022/06/29/image2854cd1be0e2e86b.png" alt="image2854cd1be0e2e86b.png"></p>
-<ul>
-<li>在Java 6之后自旋锁时自适应的，比如对象刚刚的一次自旋操作成功过，那么认为这次自旋成功的可能性会高，就多自旋几次；反之，就少自旋甚至不自旋，总之，比较只能。</li>
-<li>Java 7之后不能控制是否开启自旋功能。</li>
-</ul>
-<h3 id="4、偏向锁"><a href="#4、偏向锁" class="headerlink" title="4、偏向锁"></a>4、偏向锁</h3><p>轻量级锁在没有竞争时（就自己这个线程），每次重入仍然需要执行CAS操作。</p>
-<p>Java 6中引入了偏向锁来进一步优化：只有第一次使用CAS将<strong>线程ID</strong>（不是轻量级锁的锁记录地址，也不是重量级锁的指针）设置到对象的Mark Word头，之后发现这个线程ID是自己的就表示没有竞争，不用重新CAS。以后只要不发生竞争，这个对象就归该线程所有。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m1</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (obj) &#123;<br>        m2();<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m2</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>        m3();<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">m3</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>        <br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<img src="https://s1.imagehub.cc/images/2022/06/29/image6a0d31feca1965ec.png" alt="image6a0d31feca1965ec.png" style="zoom: 50%;" />
-
-<img src="https://s1.imagehub.cc/images/2022/06/29/imagef3592b38e0faf9bd.png" alt="imagef3592b38e0faf9bd.png" style="zoom:50%;" />
-
-<h4 id="偏向状态"><a href="#偏向状态" class="headerlink" title="偏向状态"></a>偏向状态</h4><p>回忆一下对象头格式</p>
-<p><img src="https://s1.imagehub.cc/images/2022/06/29/image14542d032fd395e6.png" alt="image14542d032fd395e6.png"></p>
-<p>一个对象创建时：</p>
-<ul>
-<li>如果开启了偏向锁（默认开启），那么对象创建后，Mark Word值为0x05即最后3位为101，这时它的thread、epoch、age都为0</li>
-<li>偏向锁是默认是延迟的，不会在程序启动时立即生效，如果想避免延迟，可以加 VM 参数 <code>-XX:BiasedLockingStartupDelay=0</code> 来禁用延迟。JDK 8 延迟 4s 开启偏向锁原因：在刚开始执行代码时，会有好多线程来抢锁，如果开偏向锁效率反而降低。</li>
-<li>如果没有开启偏向锁，那么对象创建后，Mark Word值为0x01即最后三位为001，这时他的hashcode、age都为0，第一次用到hashcode时才会赋值。</li>
-<li>添加 VM 参数 <code>-XX:-UseBiasedLocking</code> 禁用偏向锁</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Dog</span> <span class="hljs-variable">dog</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dog</span>();<br>dog.hashcode();<span class="hljs-comment">//当一个可偏向的对象调用了hashcode方法后，则会撤销这个对象的偏向状态，因为可偏向的对象没有空间存储hashcode。</span><br></code></pre></td></tr></table></figure>
-
-<h4 id="撤销-调用对象hashCode"><a href="#撤销-调用对象hashCode" class="headerlink" title="撤销-调用对象hashCode"></a>撤销-调用对象hashCode</h4><p>调用了对象的hashCode，但偏向锁的对象MarkWord中存储的是线程ID，如果调用hashCode会导致偏向锁被撤销。</p>
-<ul>
-<li>轻量级锁会在锁记录中记录hashCode</li>
-<li>重量级锁会在Monitor中记录hashCode</li>
-</ul>
-<p>在调用hashCode后使用偏向锁，记得去掉<code>-XX:UseBiasedLocking</code></p>
-<h4 id="撤销-其它线程使用对象"><a href="#撤销-其它线程使用对象" class="headerlink" title="撤销-其它线程使用对象"></a>撤销-其它线程使用对象</h4><p>当有其他线程使用偏向锁对象时，会将偏向锁升级为轻量级锁</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&#123;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">T</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">T</span>();<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt; &#123;<br>            System.out.println(ClassLayout.parseInstance(t));<br>            <span class="hljs-keyword">synchronized</span> (t)&#123;<br>                System.out.println(ClassLayout.parseInstance(t));<br>            &#125;<br>            System.out.println(ClassLayout.parseInstance(t));<br>            <span class="hljs-keyword">synchronized</span> (Test.class)&#123;<br>                Test.class.notify();<br>            &#125;<br>        &#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>            <span class="hljs-keyword">synchronized</span> (Test.class)&#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    Test.class.wait();<br>                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                    e.printStackTrace();<br>                &#125;<br>            &#125;<br>            System.out.println(ClassLayout.parseInstance(t));<br>            <span class="hljs-keyword">synchronized</span> (t)&#123;<br>                System.out.println(ClassLayout.parseInstance(t));<br>            &#125;<br>            System.out.println(ClassLayout.parseInstance(t));<br>        &#125;,<span class="hljs-string">&quot;t2&quot;</span>).start();<br>    &#125;<br></code></pre></td></tr></table></figure>
-
-<h4 id="撤销-调用-wait-x2F-notify"><a href="#撤销-调用-wait-x2F-notify" class="headerlink" title="撤销-调用 wait&#x2F;notify"></a>撤销-调用 wait&#x2F;notify</h4><p>因为wait&#x2F;notify只有重量级锁才有。</p>
-<h4 id="批量重偏向"><a href="#批量重偏向" class="headerlink" title="批量重偏向"></a>批量重偏向</h4><p>如果对象虽然被多个线程访问，但没有竞争，这时偏向了线程T1的对象仍有机会重新偏向T2，重偏向会重置对象的Thread ID</p>
-<p>当撤销偏向锁阈值超过20次后，JVM会这样觉得，我是不是偏向错了呢，于是会在给这些对象加锁时重新偏向至加锁线程。</p>
-<h4 id="批量撤销"><a href="#批量撤销" class="headerlink" title="批量撤销"></a>批量撤销</h4><p> 当撤销偏向锁阈值超过40次后，JVM会觉得自己确实偏向错了，根本就不该偏向。于是整个类的所有对象都会变为不可偏向的，新建的对象也是不可偏向的。</p>
-<h3 id="5、锁消除"><a href="#5、锁消除" class="headerlink" title="5、锁消除"></a>5、锁消除</h3><p>锁消除是指对于被检测出不可能存在竞争的共享数据的锁进行消除，这是 JVM 即时编译器（JIT）的优化</p>
-<p>锁消除主要是通过<strong>逃逸分析</strong>来支持，如果堆上的共享数据不可能逃逸出去被其它线程访问到，那么就可以把它们当成私有数据对待，也就可以将它们的锁进行消除（同步消除：JVM 逃逸分析）</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/27/ThreadPoolExecutor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/27/ThreadPoolExecutor/" class="post-title-link" itemprop="url">ThreadPoolExecutor</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-27 16:38:09" itemprop="dateCreated datePublished" datetime="2022-06-27T16:38:09+08:00">2022-06-27</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-06-28 17:09:21" itemprop="dateModified" datetime="2022-06-28T17:09:21+08:00">2022-06-28</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="线程池ThreadPoolExecutor源码剖析"><a href="#线程池ThreadPoolExecutor源码剖析" class="headerlink" title="线程池ThreadPoolExecutor源码剖析"></a>线程池ThreadPoolExecutor源码剖析</h3><h4 id="一、Java构建线程的方式"><a href="#一、Java构建线程的方式" class="headerlink" title="一、Java构建线程的方式"></a>一、Java构建线程的方式</h4><ul>
-<li>继承Thread</li>
-<li>实现Runnable</li>
-<li>实现Callable</li>
-<li>线城池方式（Java提供了构建线程池的方式）<ul>
-<li>Java提供了Executors可以去创建（规范中不允许使用这种方式创建线程池，这种方式对线程的控制粒度比较低）</li>
-<li>推荐手动创建线程池</li>
-</ul>
-</li>
-</ul>
-<h4 id="二、线程池的七个参数"><a href="#二、线程池的七个参数" class="headerlink" title="二、线程池的七个参数"></a>二、线程池的七个参数</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-title function_">ThreadPoolExecutor</span><span class="hljs-params">(<span class="hljs-type">int</span> corePoolSize, //核心线程数</span><br><span class="hljs-params">                          <span class="hljs-type">int</span> maximumPoolSize, //最大线程数</span><br><span class="hljs-params">                          <span class="hljs-type">long</span> keepAliveTime, //最大线程数空闲时间</span><br><span class="hljs-params">                          TimeUnit unit, //最大线程数空闲时间</span><br><span class="hljs-params">                          BlockingQueue&lt;Runnable&gt; workQueue,//核心线程没有空闲时，再来的请求放入队列中先保存任务</span><br><span class="hljs-params">                          ThreadFactory threadFactory, //线程工厂:<span class="hljs-number">1</span>、指定优先级</span><br><span class="hljs-params">                          //<span class="hljs-number">2</span>、指定线程名称，方便监控 <span class="hljs-number">3</span>、指定是否守护线程，守护线程不阻塞进程 <span class="hljs-number">4</span>、指定线程组</span><br><span class="hljs-params">                          </span><br><span class="hljs-params">                          RejectedExecutionHandler handler)</span> <span class="hljs-comment">//拒绝策略</span><br></code></pre></td></tr></table></figure>
-
-<h4 id="三、线程池的执行流程"><a href="#三、线程池的执行流程" class="headerlink" title="三、线程池的执行流程"></a>三、线程池的执行流程</h4><p><img src="https://i.bmp.ovh/imgs/2022/06/28/d193b03500a02e6a.png"></p>
-<p>为什么要先阻塞再去尝试创建非核心线程：</p>
-<p>饭店（线程池） -  厨子（线程） - 人多先排队（阻塞队列） - 招厨子（创建最大线程数） - 今日客满（拒绝策略）</p>
-<h4 id="四、线程池属性标识"><a href="#四、线程池属性标识" class="headerlink" title="四、线程池属性标识"></a>四、线程池属性标识</h4><h5 id="4-1核心属性"><a href="#4-1核心属性" class="headerlink" title="4.1核心属性"></a>4.1核心属性</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"> <span class="hljs-comment">//是一个int类型的数值，表达了两个意思：1、声明当前线程池的状态，2、声明线程池中的线程数、、</span><br> <span class="hljs-comment">//高3位是：线程池状态，低29位是：线程池中的线程个数</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">AtomicInteger</span> <span class="hljs-variable">ctl</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AtomicInteger</span>(ctlOf(RUNNING, <span class="hljs-number">0</span>));<br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">COUNT_BITS</span> <span class="hljs-operator">=</span> Integer.SIZE - <span class="hljs-number">3</span>; <span class="hljs-comment">//29，方便后面做位运算</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">CAPACITY</span>   <span class="hljs-operator">=</span> (<span class="hljs-number">1</span> &lt;&lt; COUNT_BITS) - <span class="hljs-number">1</span>; <span class="hljs-comment">//通过位运算得出最大容量</span><br><br> <span class="hljs-comment">// runState is stored in the high-order bits</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">RUNNING</span>    <span class="hljs-operator">=</span> -<span class="hljs-number">1</span> &lt;&lt; COUNT_BITS; <span class="hljs-comment">// 111代表线程池为RUNNING状态，代表正常接收任务</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">SHUTDOWN</span>   <span class="hljs-operator">=</span>  <span class="hljs-number">0</span> &lt;&lt; COUNT_BITS; <span class="hljs-comment">// 000代表线程池为SHUTDOWN状态，不接受新任务，但是内部还会处理阻塞队列中的任务，正在进行的任务也正常处理。</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">STOP</span>       <span class="hljs-operator">=</span>  <span class="hljs-number">1</span> &lt;&lt; COUNT_BITS; <span class="hljs-comment">//001代表线程池为STOP状态，不接受新任务，也不去处理阻塞队列中的任务，同时也终端正在执行的任务。</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TIDYING</span>    <span class="hljs-operator">=</span>  <span class="hljs-number">2</span> &lt;&lt; COUNT_BITS; <span class="hljs-comment">//010代表线程池为TIDYING状态，过渡的状态，代表当前线程池即将Game over</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">TERMINATED</span> <span class="hljs-operator">=</span>  <span class="hljs-number">3</span> &lt;&lt; COUNT_BITS; <span class="hljs-comment">//011代表线程池为TERMINATED状态，要执行terminated(),真的凉凉了。</span><br><span class="hljs-comment">// Packing and unpacking ctl</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">runStateOf</span><span class="hljs-params">(<span class="hljs-type">int</span> c)</span>     &#123; <span class="hljs-keyword">return</span> c &amp; ~CAPACITY; &#125; <span class="hljs-comment">//得到线程池的状态</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-title function_">workerCountOf</span><span class="hljs-params">(<span class="hljs-type">int</span> c)</span>  &#123; <span class="hljs-keyword">return</span> c &amp; CAPACITY; &#125; <span class="hljs-comment">//得到当前线程池的线程数</span><br></code></pre></td></tr></table></figure>
-
-<h5 id="4-2线程池状态变化"><a href="#4-2线程池状态变化" class="headerlink" title="4.2线程池状态变化"></a>4.2线程池状态变化</h5><p><img src="https://i.bmp.ovh/imgs/2022/06/28/9d0c7290fff250b1.png"></p>
-<h4 id="五、线程池的execute方法执行"><a href="#五、线程池的execute方法执行" class="headerlink" title="五、线程池的execute方法执行"></a>五、线程池的execute方法执行</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">execute</span><span class="hljs-params">(Runnable command)</span> &#123;<br>      <span class="hljs-comment">//健壮性判断</span><br>      <span class="hljs-keyword">if</span> (command == <span class="hljs-literal">null</span>)<br>          <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NullPointerException</span>();<br>      <span class="hljs-comment">//拿到32位的int</span><br>      <span class="hljs-type">int</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> ctl.get();<br>      <span class="hljs-comment">// 获取工作线程数 &lt; 核心线程数</span><br>      <span class="hljs-keyword">if</span> (workerCountOf(c) &lt; corePoolSize) &#123;<br>          <span class="hljs-comment">//创建核心线程</span><br>          <span class="hljs-keyword">if</span> (addWorker(command, <span class="hljs-literal">true</span>))<br>              <span class="hljs-comment">// 到这结束</span><br>              <span class="hljs-keyword">return</span>;<br>          <span class="hljs-comment">//没进if代表创建核心线程失败，重新获取ctl</span><br>          c = ctl.get();<br>      &#125;<br>      <span class="hljs-comment">// 判断线程池是不是RUNNING，将任务添加到阻塞队列</span><br>      <span class="hljs-keyword">if</span> (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;<br>          <span class="hljs-comment">// 再次获取ctl</span><br>          <span class="hljs-type">int</span> <span class="hljs-variable">recheck</span> <span class="hljs-operator">=</span> ctl.get();<br>          <span class="hljs-comment">// 再次判断是否是RUNNING判断，如果不是RUNNING，移除任务</span><br>          <span class="hljs-keyword">if</span> (! isRunning(recheck) &amp;&amp; remove(command))<br>              reject(command); <span class="hljs-comment">//拒绝策略</span><br>          <span class="hljs-comment">// 判断工作线程数等于0</span><br>          <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (workerCountOf(recheck) == <span class="hljs-number">0</span>)<br>              <span class="hljs-comment">//阻塞队列有任务但是没有工作线程，添加一个任务为空的工作线程处理阻塞线程的任务</span><br>              addWorker(<span class="hljs-literal">null</span>, <span class="hljs-literal">false</span>);<br>      &#125;<br>      <span class="hljs-comment">//创建非核心线程处理任务</span><br>      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!addWorker(command, <span class="hljs-literal">false</span>))<br>          reject(command); <span class="hljs-comment">//拒绝策略</span><br>  &#125;<br></code></pre></td></tr></table></figure>
-
-<p>通过上述源码，掌握了线程池的执行流程，再次查看addWorker方法内部做了什么处理</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">addWorker</span><span class="hljs-params">(Runnable firstTask, <span class="hljs-type">boolean</span> core)</span> &#123;<br>        <span class="hljs-comment">// 标记break要跳往的for循环</span><br>        retry:<br>        <span class="hljs-keyword">for</span> (;;) &#123;<br>            <span class="hljs-comment">// 获取ctl</span><br>            <span class="hljs-type">int</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> ctl.get();<br>            <span class="hljs-comment">// 获取线程池状态</span><br>            <span class="hljs-type">int</span> <span class="hljs-variable">rs</span> <span class="hljs-operator">=</span> runStateOf(c);<br>			<span class="hljs-comment">//除了RUNNING都有可能</span><br>            <span class="hljs-keyword">if</span> (rs &gt;= SHUTDOWN &amp;&amp;<br>                ! (rs == SHUTDOWN &amp;&amp; firstTask == <span class="hljs-literal">null</span> &amp;&amp;! workQueue.isEmpty())<br>                <span class="hljs-comment">// rs == SHUTDOWN，如果不是SHUTDOWN就代表是STOP或者更高的状态，就代表不需要添加线程处理任务</span><br>                <span class="hljs-comment">// 任务为空，如果任务为Null，并且线程池状态不是RUNNING，不需要处理</span><br>                <span class="hljs-comment">// 阻塞队列不为Null，如果为空，返回false，外侧的！再次取反，获取true，不需要处理</span><br>                )<br>                <span class="hljs-comment">//构建工作线程失败</span><br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br><br>            <span class="hljs-keyword">for</span> (;;) &#123;<br>                <span class="hljs-comment">// 获取工作线程个数</span><br>                <span class="hljs-type">int</span> <span class="hljs-variable">wc</span> <span class="hljs-operator">=</span> workerCountOf(c);<br>                <span class="hljs-keyword">if</span> (wc &gt;= CAPACITY || <span class="hljs-comment">//如果当前线程已经大于线程池最大容量，不去创建了</span><br>                    <span class="hljs-comment">// 判断wc是否超过核心线程或者最大线程</span><br>                    wc &gt;= (core ? corePoolSize : maximumPoolSize))<br>                    <span class="hljs-comment">// 构建工作线程失败</span><br>                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>                <span class="hljs-comment">// 将工作线程数+1，采用CAS方式</span><br>                <span class="hljs-keyword">if</span> (compareAndIncrementWorkerCount(c))<br>                    <span class="hljs-comment">// 成功就结束这次外侧循环，开始下次外侧循环</span><br>                    <span class="hljs-keyword">break</span> retry;<br>                <span class="hljs-comment">// 失败则重新获取ctl</span><br>                c = ctl.get(); <br>                <span class="hljs-comment">// 重新判断线程池状态，如果有变化则结束这次外侧循环，开始下次外侧循环；如果没变化，重新执行内部循环即可</span><br>                <span class="hljs-keyword">if</span> (runStateOf(c) != rs)<br>                    <span class="hljs-keyword">continue</span> retry;<br>            &#125;<br>        &#125;<br>		<span class="hljs-comment">// worker开始 = false</span><br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">workerStarted</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>        <span class="hljs-comment">// worker添加 = false</span><br>        <span class="hljs-type">boolean</span> <span class="hljs-variable">workerAdded</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>    	<span class="hljs-comment">// worker就是工作线程</span><br>        <span class="hljs-type">Worker</span> <span class="hljs-variable">w</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// 创建worker，传入任务</span><br>            w = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Worker</span>(firstTask);<br>            <span class="hljs-comment">// 从worker中获取线程t</span><br>            <span class="hljs-keyword">final</span> <span class="hljs-type">Thread</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> w.thread;<br>            <span class="hljs-keyword">if</span> (t != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-comment">// 获取线程池的全局锁，避免我添加任务时，其他线程干掉了线程池，干掉线程池需要先获取这个锁</span><br>                <span class="hljs-keyword">final</span> <span class="hljs-type">ReentrantLock</span> <span class="hljs-variable">mainLock</span> <span class="hljs-operator">=</span> <span class="hljs-built_in">this</span>.mainLock;<br>                mainLock.lock(); <span class="hljs-comment">// 加锁</span><br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-comment">// 获取线程池状态</span><br>                    <span class="hljs-type">int</span> <span class="hljs-variable">rs</span> <span class="hljs-operator">=</span> runStateOf(ctl.get());<br>					<span class="hljs-comment">// 是RUNNING状态</span><br>                    <span class="hljs-keyword">if</span> (rs &lt; SHUTDOWN ||<br>                        (rs == SHUTDOWN &amp;&amp; firstTask == <span class="hljs-literal">null</span>)) &#123; <span class="hljs-comment">// 是SHUTDOWN状态，创建空任务工作线程，处理阻塞队列中的任务</span><br>                        <span class="hljs-keyword">if</span> (t.isAlive())  <span class="hljs-comment">//线程是否是运行状态</span><br>                            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalThreadStateException</span>();<br>                        <span class="hljs-comment">// 将工作线程添加到集合中, workers是HashSet</span><br>                        workers.add(w);<br>                        <span class="hljs-comment">// 获取工作线程个数</span><br>                        <span class="hljs-type">int</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> workers.size();<br>                        <span class="hljs-comment">// 如果工作线程数大于之前记录的最大工作线程数，就替换一下</span><br>                        <span class="hljs-keyword">if</span> (s &gt; largestPoolSize)<br>                            largestPoolSize = s;<br>                        workerAdded = <span class="hljs-literal">true</span>; <span class="hljs-comment">//添加工作线程成功</span><br>                    &#125;<br>                &#125; <span class="hljs-keyword">finally</span> &#123;<br>                    mainLock.unlock();<br>                &#125;<br>                <span class="hljs-keyword">if</span> (workerAdded) &#123;<br>                    <span class="hljs-comment">// 启动工作线程</span><br>                    t.start();<br>                    <span class="hljs-comment">// 启动工作线程成功</span><br>                    workerStarted = <span class="hljs-literal">true</span>;<br>                &#125;<br>            &#125;<br>        &#125; <span class="hljs-keyword">finally</span> &#123;<br>            <span class="hljs-comment">// 如果启动工作线程失败</span><br>            <span class="hljs-keyword">if</span> (! workerStarted)<br>                addWorkerFailed(w);<br>        &#125;<br>        <span class="hljs-comment">// 返回工作线程是否启动</span><br>        <span class="hljs-keyword">return</span> workerStarted;<br>    &#125;<br></code></pre></td></tr></table></figure>
-
-<h4 id="六、Worker的封装"><a href="#六、Worker的封装" class="headerlink" title="六、Worker的封装"></a>六、Worker的封装</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Worker</span><br>    <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractQueuedSynchronizer</span><br>    <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Runnable</span><br>&#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * This class will never be serialized, but we provide a</span><br><span class="hljs-comment">     * serialVersionUID to suppress a javac warning.</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">serialVersionUID</span> <span class="hljs-operator">=</span> <span class="hljs-number">6138294804551838833L</span>;<br><br>    <span class="hljs-comment">/** Thread this worker is running in.  Null if factory fails. */</span><br>    <span class="hljs-keyword">final</span> Thread thread;<br>    <span class="hljs-comment">/** Initial task to run.  Possibly null. */</span><br>    Runnable firstTask;<br>    <span class="hljs-comment">/** Per-thread task counter */</span><br>    <span class="hljs-keyword">volatile</span> <span class="hljs-type">long</span> completedTasks;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Creates with given first task and thread from ThreadFactory.</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> firstTask the first task (null if none)</span><br><span class="hljs-comment">     */</span><br>    Worker(Runnable firstTask) &#123;<br>        setState(-<span class="hljs-number">1</span>); <span class="hljs-comment">// inhibit interrupts until runWorker</span><br>        <span class="hljs-built_in">this</span>.firstTask = firstTask;<br>        <span class="hljs-built_in">this</span>.thread = getThreadFactory().newThread(<span class="hljs-built_in">this</span>);<br>    &#125;<br><br>    <span class="hljs-comment">/** Delegates main run loop to outer runWorker  */</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<br>        runWorker(<span class="hljs-built_in">this</span>);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>看runWorker方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">runWorker</span><span class="hljs-params">(Worker w)</span> &#123;<br>    <span class="hljs-comment">// 获取当前线程</span><br>    <span class="hljs-type">Thread</span> <span class="hljs-variable">wt</span> <span class="hljs-operator">=</span> Thread.currentThread();<br>    <span class="hljs-comment">// 拿到任务</span><br>    <span class="hljs-type">Runnable</span> <span class="hljs-variable">task</span> <span class="hljs-operator">=</span> w.firstTask;<br>    <span class="hljs-comment">// 先不关注</span><br>    w.firstTask = <span class="hljs-literal">null</span>;<br>    w.unlock(); <span class="hljs-comment">// allow interrupts</span><br>    <span class="hljs-comment">// 标识为true</span><br>    <span class="hljs-type">boolean</span> <span class="hljs-variable">completedAbruptly</span> <span class="hljs-operator">=</span> <span class="hljs-literal">true</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">//任务不空，执行任务。如果任务为空，通过getTask从阻塞队列中获取任务</span><br>        <span class="hljs-keyword">while</span> (task != <span class="hljs-literal">null</span> || (task = getTask()) != <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-comment">// 加锁，避免你shutdown我任务也不会中断</span><br>            w.lock();<br>            <span class="hljs-comment">// 获取当前状态，是否大于等于STOP(TIDYING,TERMINATED)</span><br>            <span class="hljs-keyword">if</span> ((runStateAtLeast(ctl.get(), STOP) ||<br>                 (Thread.interrupted() &amp;&amp;<br>                  runStateAtLeast(ctl.get(), STOP))) &amp;&amp;<br>                !wt.isInterrupted())<br>                wt.interrupt();<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-comment">//执行任务前的操作</span><br>                beforeExecute(wt, task);<br>                <span class="hljs-type">Throwable</span> <span class="hljs-variable">thrown</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    <span class="hljs-comment">//开始执行任务</span><br>                    task.run();<br>                &#125; <span class="hljs-keyword">catch</span> (RuntimeException x) &#123;<br>                    thrown = x; <span class="hljs-keyword">throw</span> x;<br>                &#125; <span class="hljs-keyword">catch</span> (Error x) &#123;<br>                    thrown = x; <span class="hljs-keyword">throw</span> x;<br>                &#125; <span class="hljs-keyword">catch</span> (Throwable x) &#123;<br>                    thrown = x; <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(x);<br>                &#125; <span class="hljs-keyword">finally</span> &#123;<br>                    afterExecute(task, thrown);<br>                &#125;<br>            &#125; <span class="hljs-keyword">finally</span> &#123;<br>                task = <span class="hljs-literal">null</span>;<br>                w.completedTasks++;<br>                w.unlock();<br>            &#125;<br>        &#125;<br>        completedAbruptly = <span class="hljs-literal">false</span>;<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        processWorkerExit(w, completedAbruptly);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/15/synchronized/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/15/synchronized/" class="post-title-link" itemprop="url">synchronized</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-15 16:28:12" itemprop="dateCreated datePublished" datetime="2022-06-15T16:28:12+08:00">2022-06-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-07 16:07:38" itemprop="dateModified" datetime="2022-07-07T16:07:38+08:00">2022-07-07</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="CAS-compare-and-swap）"><a href="#CAS-compare-and-swap）" class="headerlink" title="CAS(compare and swap）"></a>CAS(compare and swap）</h2><p>因为synchronized是非公平锁，所以诞生了CAS(compare and swap),比较并交换。可以解决多线程并行情况下使用锁造成性能损耗的一种机制.CAS 操作包含三个操作数—内存位置（V）、预期原值（A）和新值(B)。如果内存位置的值与预期原值相匹配，那么处理器会自动将该位置值更新为新值。否则，处理器不做任何操作。一个线程从主内存中得到num值，并对num进行操作，写入值的时候，线程会把第一次取到的num值和主内存中num值进行比较，如果相等，就会将改变后的num写入主内存，如果不相等，则一直循环对比，直到成功为止。</p>
-<p>但是，如果在某个线程从内存中拿到num值并操作后，写入值之前有另外一个线程也对num进行cas操作，则不能保证数据一致性，所以在比较和写入这两个操作必须要是原子操作。为了实现原子性，则需要lock指令。</p>
-<p>lock代表有任何一个cpu在访问这块内存的时候，进行cas操作的过程中，把总线上锁，不许打断。</p>
-<p>底层原理：CAS 的底层是 <code>lock cmpxchg</code> 指令（X86 架构），在单核和多核 CPU 下都能够保证比较交换的原子性</p>
-<ul>
-<li>程序是在单核处理器上运行，会省略 lock 前缀，单处理器自身会维护处理器内的顺序一致性，不需要 lock 前缀的内存屏障效果</li>
-<li>程序是在多核处理器上运行，会为 cmpxchg 指令加上 lock 前缀。当某个核执行到带 lock 的指令时，CPU 会执行<strong>总线锁定或缓存锁定</strong>，将修改的变量写入到主存，这个过程不会被线程的调度机制所打断，保证了多个线程对内存操作的原子性</li>
-</ul>
-<p>CAS 特点：</p>
-<ul>
-<li>CAS 体现的是<strong>无锁并发、无阻塞并发</strong>，线程不会陷入阻塞，线程不需要频繁切换状态（上下文切换，系统调用）</li>
-<li>CAS 是基于乐观锁的思想</li>
-</ul>
-<p>CAS 缺点：</p>
-<ul>
-<li>循环时间长，开销大，因为执行的是循环操作，如果比较不成功一直在循环，最差的情况某个线程一直取到的值和预期值都不一样，就会无限循环导致饥饿，<strong>使用 CAS 线程数不要超过 CPU 的核心数</strong></li>
-<li>只能保证一个共享变量的原子操作<ul>
-<li>对于一个共享变量执行操作时，可以通过循环 CAS 的方式来保证原子操作</li>
-<li>对于多个共享变量操作时，循环 CAS 就无法保证操作的原子性，这个时候<strong>只能用锁来保证原子性</strong></li>
-</ul>
-</li>
-<li>引出来 ABA 问题</li>
-</ul>
-<h4 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h4><p>CAS 与 synchronized 总结：</p>
-<ul>
-<li>synchronized 是从悲观的角度出发：总是假设最坏的情况，每次去拿数据的时候都认为别人会修改，所以每次在拿数据的时候都会上锁，这样别人想拿这个数据就会阻塞（共享资源每次只给一个线程使用，其它线程阻塞，用完后再把资源转让给其它线程），因此 synchronized 也称之为悲观锁，ReentrantLock 也是一种悲观锁，性能较差</li>
-<li>CAS 是从乐观的角度出发：总是假设最好的情况，每次去拿数据的时候都认为别人不会修改，所以不会上锁，但是在更新的时候会判断一下在此期间别人有没有去更新这个数据。<strong>如果别人修改过，则获取现在最新的值，如果别人没修改过，直接修改共享数据的值</strong>，CAS 这种机制也称之为乐观锁，综合性能较好</li>
-</ul>
-<h3 id="Synchronized关键字"><a href="#Synchronized关键字" class="headerlink" title="Synchronized关键字"></a>Synchronized关键字</h3><p>在学习Synchronized之前我们要先了解<strong>对象在内存中的存储布局</strong>。</p>
-<img src="https://i.bmp.ovh/imgs/2022/06/27/f498f52fa4f781cf.png" style="zoom: 50%;" />
-
-<p>如上图，Java对象的内存构成分三个部分，对象头(mark word、class pointer、array length（数组才有）)，对象体，字节对齐。</p>
-<p>对象头：</p>
-<ul>
-<li><p>mark word</p>
-<p> 用来存储自身运行时的数据，例如：hashcode，锁状态。</p>
-</li>
-<li><p>class pointer</p>
-<p> 用来存储方法区中字节码对象的地址，JVM通过这个指针来确定这个对象是属于哪个类的实例。</p>
-</li>
-<li><p>array length</p>
-<p> 如果对象是数组，则该字段记录数组的长度，如果不是数组，该字段不存在。</p>
-</li>
-</ul>
-<p>对象体：</p>
-<ul>
-<li>对象的成员属性，也包括父类的成员属性，这部分4字节对齐。</li>
-</ul>
-<p>字节对齐：</p>
-<ul>
-<li>对齐字节也叫作填充对齐，其作用是用来保证Java对象所占内存字节数为8的倍数（HotSpot VM的内存管理要求对象起始地址必须是8字节的整数倍）对象头本事是8的倍数，当对象的实例变量数据不是8的倍数时，便需要填充数据来保证8字节对齐。</li>
-</ul>
-<p>举例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>        System.out.println(ClassLayout.parseInstance(o).toPrintable());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-
-<p><img src="https://i.bmp.ovh/imgs/2022/06/27/73f6077bd2a022d1.png"></p>
-<p>对了，这里补充一下8种基本数据类型所占字节位数和取值范围。</p>
-<table>
-<thead>
-<tr>
-<th><strong>类型</strong></th>
-<th><strong>占用字节</strong></th>
-<th><strong>占用位数</strong></th>
-<th><strong>数值长度</strong></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>byte</td>
-<td>1</td>
-<td>8</td>
-<td>-128~127(-2的7次方到2的7次方-1)</td>
-</tr>
-<tr>
-<td>short</td>
-<td>2</td>
-<td>16</td>
-<td>-32768~32767(-2的15次方到2的15次方-1)</td>
-</tr>
-<tr>
-<td>int</td>
-<td>4</td>
-<td>32</td>
-<td>-2的31次方到2的31次方-1</td>
-</tr>
-<tr>
-<td>long</td>
-<td>8</td>
-<td>64</td>
-<td>-2的63次方到2的63次方-1</td>
-</tr>
-<tr>
-<td>float</td>
-<td>4</td>
-<td>32</td>
-<td>（e-45是乘以10的负45次方，e+38是乘以10的38次方) （2的-149次方~2的128次方-1）</td>
-</tr>
-<tr>
-<td>double</td>
-<td>8</td>
-<td>64</td>
-<td>(2的-1074次方 ~ 2的1024次方)</td>
-</tr>
-<tr>
-<td>char</td>
-<td>2</td>
-<td>16</td>
-<td></td>
-</tr>
-<tr>
-<td>boolean</td>
-<td></td>
-<td>1</td>
-<td></td>
-</tr>
-</tbody></table>
-<p>boolean有些特殊：</p>
-<p><strong>如果boolean是单独使用：boolean占4个字节。</strong></p>
-<p><strong>如果boolean是以“boolean数组”的形式使用：boolean占1个字节。</strong></p>
-<p>例2：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&#123;<br>        <span class="hljs-type">int</span> m;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> “helloworld<span class="hljs-string">&quot;;</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">    public static void main(String[] args) &#123;</span><br><span class="hljs-string">        T t = new T();</span><br><span class="hljs-string">        System.out.println(ClassLayout.parseInstance(t).toPrintable());</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">&#125;</span><br></code></pre></td></tr></table></figure>
-
-<p><img src="https://i.bmp.ovh/imgs/2022/06/27/d840af7984eaf558.png"></p>
-<p>上图，0-8为mark word所占字节。8-12的4个字节为class pointer指向T.class，T的成员变量m为int类型占4个字节，在64位的虚拟机中引用类型占4个字节，此时一共20个字节，不满足8的倍数，所以字节对齐补4个字节，最终占24个字节。ps:String所占字节是String指针s的大小，helloworld为s指向常量区的内容。</p>
-<p>在了解了对象在内存中的布局之后，我们再来学习<strong>synchronized</strong>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&#123;<br>        <span class="hljs-type">int</span> m;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;helloworld&quot;</span>;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">T</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">T</span>();<br>        System.out.println(ClassLayout.parseInstance(t).toPrintable());<br><br>        <span class="hljs-keyword">synchronized</span> (t)&#123;<br>            System.out.println(ClassLayout.parseInstance(t).toPrintable());<br>        &#125;<br>        System.out.println(ClassLayout.parseInstance(t).toPrintable());<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-
-<p><img src="https://i.bmp.ovh/imgs/2022/06/27/ce73f64932995600.png"></p>
-<p>mark word主要记录的三部分信息：</p>
-<ul>
-<li>锁信息</li>
-<li>GC的信息</li>
-<li>hashcode</li>
-</ul>
-<p>所谓给对象上锁就是修改了mark word，当然在释放后，则恢复最初的状态。</p>
-<p>synchronized为<strong>非公平锁</strong></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/05/25/reference/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/25/reference/" class="post-title-link" itemprop="url">reference</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-25 16:40:21" itemprop="dateCreated datePublished" datetime="2022-05-25T16:40:21+08:00">2022-05-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-06-29 14:09:42" itemprop="dateModified" datetime="2022-06-29T14:09:42+08:00">2022-06-29</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="强引用-StrongReference）"><a href="#强引用-StrongReference）" class="headerlink" title="强引用(StrongReference）"></a>强引用(StrongReference）</h2><p>强引用是使用最普遍的引⽤。如果⼀个对象具有强引⽤，那垃圾回收器绝不会回收它。如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Object</span> <span class="hljs-variable">strongReference</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br></code></pre></td></tr></table></figure>
-
-<p>当内存空间不足时，Java虚拟机宁愿抛出OutOfMemoryError错误，使程序异常终止，也不会靠随意回收具有强引用的对象来解决内存不足的问题。</p>
-<p>如果强引用对象不使用时，需要弱化从而使GC能够回收，如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">strongReference = <span class="hljs-literal">null</span>;<br></code></pre></td></tr></table></figure>
-
-<p>显式地设置strongReference对象为null，或让其超出对象的生命周期范围，则GC认为该对象不存在引用，这时就可以回收这个对象。具体什么时候收集这要取决于GC算法。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">test</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-type">Object</span> <span class="hljs-variable">strongReference</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>在一个方法的内部有一个强引用，这个引用保存再Java栈中，而真正的引用内容(Object)保存在Java堆中。当这个方法运行完成后，就会退出方法栈，则引用对象的引用数为0，这个对象会被回收。</p>
-<p>但是如果这个strongReference是全局变量时，就需要在不用这个对象时赋值为null，因为强引用不会被垃圾回收。</p>
-<h2 id="软引用-softReference"><a href="#软引用-softReference" class="headerlink" title="软引用(softReference)"></a>软引用(softReference)</h2><p>如果一个对象只具有软引用，则内存空间充足时，垃圾回收器就不会回收它，如果空间不充足了，就会回收这些对象的内存。只要垃圾回收器没有回收它，该对象就可以被程序使用。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//软引用可用来实现内存敏感的高速缓存</span><br><span class="hljs-comment">//强引用</span><br><span class="hljs-type">String</span> <span class="hljs-variable">strongReference</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;ABC&quot;</span>);<br><span class="hljs-comment">//软引用</span><br><span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;abc&quot;</span>);<br>SoftReference&lt;String&gt; softReference = <span class="hljs-keyword">new</span> <span class="hljs-title class_">SoftReference</span>&lt;String&gt;(str);<br></code></pre></td></tr></table></figure>
-
-<p>软引用对象实在jvm内存不够的时候才会被回收，我们调用System.gc()方法只是起通知作用，jvm什么时候扫描回收对象是jvm自己的状态决定的。就算扫描到软引用对象也不一定会回收它，只有内存不够的时候才会回收。</p>
-<h3 id="虚引用（PhantomReference）"><a href="#虚引用（PhantomReference）" class="headerlink" title="虚引用（PhantomReference）"></a>虚引用（PhantomReference）</h3><p>虚引用顾名思义，就是形同虚设。与其他几种引用不同，虚引用并不会决定对象的生命周期。如果一个对象仅持有虚引用，那么它就和没有任何引用一样，在任何时候都可能被垃圾回收器回收。</p>
-<p>应用场景：</p>
-<p>虚引用主要用来跟踪对象被垃圾回收器回收的活动。</p>
-<p>虚引用与软引用和弱引用的一个区别在于：虚引用必须和引用队列(ReferenceQueue)联合使用。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象的内存之前，把这个虚引用加入到与之关联的引用队列中。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;abc&quot;</span>);<br><span class="hljs-type">ReferenceQueue</span> <span class="hljs-variable">queue</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReferenceQueue</span>();<br><span class="hljs-comment">//创建虚引用，要求必须与一个队列队列关联</span><br><span class="hljs-type">PhantomReference</span> <span class="hljs-variable">pr</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PhantomReference</span>(str,queue);<br></code></pre></td></tr></table></figure>
-
-<p>程序可以通过判断引入队列中是否已经加入了虚引用，来了解被引用对象是否将要进行垃圾回收。如果程序发现某个虚引用已经被加入到引用队列，那么就可以在所引用的对象的内存被回收之前采取必要行动。</p>
-<h3 id="弱引用（WeakReference）"><a href="#弱引用（WeakReference）" class="headerlink" title="弱引用（WeakReference）"></a>弱引用（WeakReference）</h3><p>弱引用与软引用的区别在于：只具有弱引用的对象拥有更短暂的生命周期。在垃圾回收器线程扫描它所管辖的内存区域的过程中，一旦发现了只具有弱引用的对象，不管当前内存空间足够与否，都会回收它的内存。不过，由于垃圾回收器是一个优先级很低的线程，因此不一定会很快发现那些只具有弱引用的对象。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;abc&quot;</span>);<br>WeakReference&lt;String&gt; weakReference = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WeakReference</span>&lt;&gt;(str);<br>str = <span class="hljs-literal">null</span>;<br></code></pre></td></tr></table></figure>
-
-<p>jvm首先将弱引用中的对象引用置为null，然后通知垃圾回收器进行回收：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">str = <span class="hljs-literal">null</span>;<br>System.gc();<br></code></pre></td></tr></table></figure>
-
-<p>注意：如果一个对象时偶尔的使用，并且希望在使用时随时就能获取到，但又不想影响此对象的垃圾收集，那么你应该用WeakRerference来记住此对象。</p>
-<p>下面的代码会让一个弱引用再次变为一个强引用</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">str</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;abc&quot;</span>);<br>WeakReference&lt;String&gt; weakReference = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WeakReference</span>&lt;&gt;(str);<br><span class="hljs-comment">//弱引用转强引用</span><br><span class="hljs-type">String</span> <span class="hljs-variable">strongReference</span> <span class="hljs-operator">=</span> weakReference.get();<br></code></pre></td></tr></table></figure>
-
-<p>应用场景：</p>
-<p>用在ＴｈｒｅａｄＬｏｃａｌ、WｅａｋＨａｓｈＭａｐ里防止内存泄漏。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/05/24/parallelStream/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/24/parallelStream/" class="post-title-link" itemprop="url">浅谈parallelStream</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-24 10:14:40" itemprop="dateCreated datePublished" datetime="2022-05-24T10:14:40+08:00">2022-05-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-25 16:35:44" itemprop="dateModified" datetime="2022-05-25T16:35:44+08:00">2022-05-25</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="了解parallelStream的作用与理解"><a href="#了解parallelStream的作用与理解" class="headerlink" title="了解parallelStream的作用与理解"></a>了解parallelStream的作用与理解</h3><p>Stream 就如同一个迭代器（Iterator），单向，不可往复，数据只能遍历一次，遍历过一次后即用尽了，就好比流水从面前流过，一去不复返。</p>
-<p>而和迭代器又不同的是，Stream 可以并行化操作，迭代器只能命令式地、串行化操作。顾名思义，当使用串行方式去遍历时，每个 item 读完后再读下一个 item。而使用并行去遍历时，数据会被分成多个段，其中每一个都在不同的线程中处理，然后将结果一起输出。Stream 的并行操作依赖于 Java7 中引入的 Fork&#x2F;Join 框架（JSR166y）来拆分任务和加速处理过程。</p>
-<h4 id="parallelStream是什么"><a href="#parallelStream是什么" class="headerlink" title="parallelStream是什么"></a>parallelStream是什么</h4><p>parallelStream其实就是一个并行执行的流.它通过默认的ForkJoinPool,可能提高你的多线程任务的速度.</p>
-<h4 id="parallelStream的作用"><a href="#parallelStream的作用" class="headerlink" title="parallelStream的作用"></a>parallelStream的作用</h4><p>Stream具有平行处理能力，处理的过程会分而治之，也就是将一个大任务切分成多个小任务，这表示每个任务都是一个操作，因此像以下的程式片段：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">parallelStream</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        List&lt;Integer&gt; integers = Arrays.asList(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>);<br>        integers.parallelStream().forEach(System.out::println);<br>    &#125;<br>&#125;<br><br>output:<br><span class="hljs-number">6</span><br><span class="hljs-number">5</span><br><span class="hljs-number">8</span><br><span class="hljs-number">9</span><br><span class="hljs-number">7</span><br><span class="hljs-number">4</span><br><span class="hljs-number">1</span><br><span class="hljs-number">2</span><br><span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
-
-<p>你得到的展示顺序不一定会是1、2、3、4、5、6、7、8、9，而可能是任意的顺序，就forEach()这个操作來讲，如果平行处理时，希望最后顺序是按照原来Stream的数据顺序，那可以调用forEachOrdered()。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">List&lt;Integer&gt; numbers = Arrays.asList(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>);<br>numbers.parallelStream()<br>       .forEachOrdered(out::println);  <br></code></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/05/23/learnKnowledgeday1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/23/learnKnowledgeday1/" class="post-title-link" itemprop="url">每天一个知识点(一)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2022-05-23 14:05:09 / 修改时间：14:20:41" itemprop="dateCreated datePublished" datetime="2022-05-23T14:05:09+08:00">2022-05-23</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="关于Java中子类是否可以访问父类的私有属性"><a href="#关于Java中子类是否可以访问父类的私有属性" class="headerlink" title="关于Java中子类是否可以访问父类的私有属性"></a>关于Java中子类是否可以访问父类的私有属性</h3><p>首先从子类是否可以继承父类的私有属性来看：</p>
-<p><strong>从继承的概念来说</strong>，<code>private</code>和<code>final</code>不被继承。Java官方文档上是这么说的。</p>
-<p><strong>从内存的角度来说</strong>，父类的一切都被继承（从父类构造方法被调用就知道了，因为new一个对象，就会调用构造方法，子类被new的时候就会调用父类的构造方法，所以从内存的角度来说，子类拥有一个完整的父类）。子类对象所引用的内存有父类变量的一份拷贝。</p>
-<p>那么子类是否可以访问父类的私有属性呢？</p>
-<p>如果父类中有对私有属性的get和set的方法，而且是public的修饰的方法，</p>
-<p>子类在继承父类的同时，也继承了带有public修饰的set和get方法，所以可以通过以下方式子类可以访问到父类的私有属性。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> test;<br> <br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span>&#123;<br>	<span class="hljs-keyword">private</span> String name;<br>	<span class="hljs-keyword">public</span> Integer age;<br>	<br>	<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> name;<br>	&#125;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> &#123;<br>		<span class="hljs-built_in">this</span>.name = name;<br>	&#125;<br>	<span class="hljs-keyword">public</span> Integer <span class="hljs-title function_">getAge</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> age;<br>	&#125;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setAge</span><span class="hljs-params">(Integer age)</span> &#123;<br>		<span class="hljs-built_in">this</span>.age = age;<br>	&#125;<br>	<br>	<br>&#125;<br> <br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Person</span>&#123;<br>	<br>&#125;<br> <br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>		<span class="hljs-type">Student</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Student</span>();<br>		<br>		s.age = <span class="hljs-number">12</span>;<br>		s.setName(<span class="hljs-string">&quot;小明&quot;</span>);<br>		<br>		<span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> s.getName();<br>		System.out.println(<span class="hljs-string">&quot;name = &quot;</span>+ name);<br>		<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>通过调用子类中从父类那里继承的set和get方法来访问父类中私有属性name。</p>
-<p>但是要记住，子类并非继承到父类的私有属性name，子类只是继承了父类的非私有属性，比如以上例子的 age 属性。</p>
-<p>虽然子类可以通过以上的方法可以访问父类的私有属性，但是在做java题时，一般说子类可以访问父类的私有属性这些说法都是错误的。</p>
-<p>要注意一点，如果父类中没有对私有属性的 get 和 set 方法或者其他对私有属性操作的方法，又或者这些方法都被private修饰，</p>
-<p>这样子类是无法访问到父类的私有属性的。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/05/20/threadlocal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/05/20/threadlocal/" class="post-title-link" itemprop="url">threadlocal</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-05-20 14:30:48" itemprop="dateCreated datePublished" datetime="2022-05-20T14:30:48+08:00">2022-05-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-06-29 14:03:55" itemprop="dateModified" datetime="2022-06-29T14:03:55+08:00">2022-06-29</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h3><p>在下面的代码中，p为共享变量，线程1先启动，执行sleep语句，此时p.name为zhangsan，因为线程1休眠，所以线程2抢占到CPU，线程2启动执行sleep语句，线程1则抢占到CPU，执行p.name &#x3D; “lisi”，此时p.name为lisi，在线程1执行完之后，线程2才拿到CPU，打印p.name的值，所以为lisi。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ThreadLocal1</span> &#123;<br>    <span class="hljs-keyword">static</span> <span class="hljs-type">Person</span> <span class="hljs-variable">p</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-comment">//线程1</span><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                Thread.sleep(<span class="hljs-number">1000</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>            p.name = <span class="hljs-string">&quot;lisi&quot;</span>;<br>        &#125;).start();<br>		<span class="hljs-comment">//线程2</span><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                Thread.sleep(<span class="hljs-number">2000</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>            System.out.println(p.name);<br>        &#125;).start();<br>    &#125;<br>&#125;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span>&#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;zhangsan&quot;</span>;<br>&#125;<br><br>output:<br>lisi<br></code></pre></td></tr></table></figure>
-
-<p>但是在使用了ThreadLocal后，情况则不同了。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ThreadLocal2</span> &#123;<br>    <span class="hljs-keyword">static</span> ThreadLocal&lt;Person&gt; tl = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadLocal</span>&lt;&gt;();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                Thread.sleep(<span class="hljs-number">1000</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>            tl.set(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;zhangsan&quot;</span>));<br>        &#125;).start();<br><br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                Thread.sleep(<span class="hljs-number">2000</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>            System.out.println(tl.get());<br>            <span class="hljs-comment">//输出null</span><br>        &#125;).start();<br>    &#125;<br><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span>&#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;zhangsan&quot;</span>;<br>        <span class="hljs-keyword">public</span> <span class="hljs-title function_">Person</span><span class="hljs-params">(String name)</span>&#123;<span class="hljs-built_in">this</span>.name = name;&#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>装在ThreadLocal中的域或对象只能该线程访问的到，其他线程访问不到。</p>
-<p>ThreadLocal用处：在线程上下文传递变量</p>
-<p>源码分析：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//先来看set方法</span><br>   <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">set</span><span class="hljs-params">(T value)</span> &#123;<br>       <span class="hljs-comment">//获得当前线程</span><br>       <span class="hljs-type">Thread</span> <span class="hljs-variable">t</span> <span class="hljs-operator">=</span> Thread.currentThread();<br>       <span class="hljs-type">ThreadLocalMap</span> <span class="hljs-variable">map</span> <span class="hljs-operator">=</span> getMap(t);<br>       <span class="hljs-keyword">if</span> (map != <span class="hljs-literal">null</span>) &#123;<br>           <span class="hljs-comment">//this为tl，value为Person对象</span><br>           map.set(<span class="hljs-built_in">this</span>, value);<br>       &#125; <span class="hljs-keyword">else</span> &#123;<br>           createMap(t, value);<br>       &#125;<br>   &#125;<br><span class="hljs-comment">//getMap方法(拿到当前线程的Map)</span><br>   ThreadLocalMap <span class="hljs-title function_">getMap</span><span class="hljs-params">(Thread t)</span> &#123;<br>       <span class="hljs-comment">//threadLocals为Thread的成员变量，每当new Thread时都会有一个map。</span><br>       <span class="hljs-keyword">return</span> t.threadLocals;<br>   &#125;<br><br>   ThreadLocal.<span class="hljs-type">ThreadLocalMap</span> <span class="hljs-variable">threadLocals</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br><br><span class="hljs-comment">//小结：Person对象被set进当前线程的map当中，其他线程肯定就get不到了。</span><br><br><br></code></pre></td></tr></table></figure>
-
-<p>我们再往下看ThreadLocalMap中的set方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">set</span><span class="hljs-params">(ThreadLocal&lt;?&gt; key, Object value)</span> &#123;<br><br>            <span class="hljs-comment">// We don&#x27;t use a fast path as with get() because it is at</span><br>            <span class="hljs-comment">// least as common to use set() to create new entries as</span><br>            <span class="hljs-comment">// it is to replace existing ones, in which case, a fast</span><br>            <span class="hljs-comment">// path would fail more often than not.</span><br><br>            Entry[] tab = table;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">len</span> <span class="hljs-operator">=</span> tab.length;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> key.threadLocalHashCode &amp; (len-<span class="hljs-number">1</span>);<br><br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">Entry</span> <span class="hljs-variable">e</span> <span class="hljs-operator">=</span> tab[i];<br>                 e != <span class="hljs-literal">null</span>;<br>                 e = tab[i = nextIndex(i, len)]) &#123;<br>                <span class="hljs-keyword">if</span> (e.refersTo(key)) &#123;<br>                    e.value = value;<br>                    <span class="hljs-keyword">return</span>;<br>                &#125;<br><br>                <span class="hljs-keyword">if</span> (e.refersTo(<span class="hljs-literal">null</span>)) &#123;<br>                    replaceStaleEntry(key, value, i);<br>                    <span class="hljs-keyword">return</span>;<br>                &#125;<br>            &#125;<br><br>            tab[i] = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Entry</span>(key, value);<br>            <span class="hljs-type">int</span> <span class="hljs-variable">sz</span> <span class="hljs-operator">=</span> ++size;<br>            <span class="hljs-keyword">if</span> (!cleanSomeSlots(i, sz) &amp;&amp; sz &gt;= threshold)<br>                rehash();<br>        &#125;<br></code></pre></td></tr></table></figure>
-
-<p>我们发现set方法最终会生成一个Entry对象。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Entry</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">WeakReference</span>&lt;ThreadLocal&lt;?&gt;&gt; &#123;<br>    <span class="hljs-comment">/** The value associated with this ThreadLocal. */</span><br>    Object value;<br><br>    Entry(ThreadLocal&lt;?&gt; k, Object v) &#123;<br>        <span class="hljs-built_in">super</span>(k);<br>        value = v;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>Entry继承了weakReference，表示是一个弱引用。在Entry的构造方法中，我们可以发现首先调用了super(k),k就是上面的tl，super()是父类的构造方法，相当于调用了new weakReference(tl)，也就是说Entry的k是通过一个弱引用指向了tl。</p>
-<p>为什么Entry要使用弱引用呢？</p>
-<p>若是强引用，即使tl &#x3D; null，但key的引用依然指向ThreadLocal对象，所以会有内存泄露，而使用弱引用则不会。但是这样也会产生内存泄漏，因为即使key被回收了，但是value指向的对象并不会被回收，在这种情况下get(key)，key是null，我们可能拿不到对应的value，拿不到的话value就没用处了，一样会产生内存泄漏。所以当我们不在用到ThreadLocal这个对象的时候一定要加一个tl.remove()。</p>
-<p>ThreadLocal相关面试题：</p>
-<p>你知道Srping里面声明式事务的注解内部是怎么完成的吗？</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/04/29/polymorphic/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1220,10 +237,254 @@
   
   
 
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/04/22/finalandstatic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/04/22/finalandstatic/" class="post-title-link" itemprop="url">final和static关键字</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-22 16:00:38" itemprop="dateCreated datePublished" datetime="2022-04-22T16:00:38+08:00">2022-04-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-28 14:05:00" itemprop="dateModified" datetime="2022-04-28T14:05:00+08:00">2022-04-28</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="final参数"><a href="#final参数" class="headerlink" title="final参数"></a>final参数</h3><p> Java允许在参数列表中以声明的方式将参数指明为final。这意味着你无法在方法中更改参数引用所指向的对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Gizmo</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">spin</span><span class="hljs-params">()</span>&#123;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FinalArguments</span>&#123;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">with</span><span class="hljs-params">(<span class="hljs-keyword">final</span> Gizmo g)</span>&#123;<br>        <span class="hljs-comment">//! g = new Gizmo(); // Illegal -- g is final</span><br>    &#125;<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">without</span><span class="hljs-params">(Gizmo g)</span>&#123;<br>        g = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Gizmo</span>(); <span class="hljs-comment">//ok -- g not final</span><br>        g.spin();<br>    &#125;<br>    <span class="hljs-comment">//void f(final int i)&#123;i++;&#125; //can&#x27;t change</span><br>    <span class="hljs-comment">//you can only read from final primitive:</span><br>    <span class="hljs-type">int</span> <span class="hljs-title function_">g</span><span class="hljs-params">(<span class="hljs-keyword">final</span> <span class="hljs-type">int</span> i)</span>&#123;<br>        <span class="hljs-keyword">return</span> i+<span class="hljs-number">1</span>;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>        <span class="hljs-type">FinalArguments</span> <span class="hljs-variable">bf</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FinalArguments</span>();<br>        bf.without(<span class="hljs-literal">null</span>);<br>        bf.with(<span class="hljs-literal">null</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>方法f()和g()展示了当基本类型的参数被指明为final时所出现的结果：你可以读参数，但却无法修改参数。这一特性主要用来向匿名内部类传递数据。</p>
+<h3 id="final方法"><a href="#final方法" class="headerlink" title="final方法"></a>final方法</h3><p>​    使用final方法的原因有两个。1、把方法锁定，以防任何继承类修改它的含义。这是出于设计的考虑：想要确保在继承中使方法行为保持不变，并且不会被覆盖。</p>
+<p>​    过去建议使用final方法的第二个原因是效率。在Java的早期实现中，如果将一个方法指明为final，就是同意编译器将针对该方法的所有调用都转为内嵌调用。当编译器发现一个final方法调用命令时，它会根据自己的谨慎判断，跳过插入程序代码这种正常方式而执行方法调用机制（将参数压入栈，跳至方法代码处执行，然后跳回并清理栈中的参数，处理返回值），并且以方法体中的实际代码的副本来代替方法调用。这将消除方法调用的开销。当然，如果一个方法很大，你的程序代码就会膨胀，因而可能看不到内嵌带来的任何性能提高。因为，所带来的性能提高会因为花费于方法内的时间量而被缩减。</p>
+<p>​    在最近的Java版本中，虚拟机（特别时hotspot技术）可以探测到这些情况，并优化去掉这些效率反而降低的额外的内嵌调用，因此不再需要使用final方法来进行优化了。事实上，这种做法正在逐渐地收到劝阻。在使用Java SE5&#x2F;6时，应该让编译器和JVM去处理效率问题，只有在想要明确禁止覆盖时，才将方法设置为final的。</p>
+<h5 id="final和private关键字"><a href="#final和private关键字" class="headerlink" title="final和private关键字"></a>final和private关键字</h5><p>​    类中所有的private方法都隐式地指定为是final的。由于无法取用private方法，所以也就无法覆盖它。可以对private方法添加final修饰词，但这并不能给该方法增加任何额外的意义。</p>
+<p>​    这一问题会造成混淆。因为，如果你试图覆盖一个private方法（隐含是final的），似乎是奏效的，而且编译器也不会给出错误信息：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">WithFinals</span>&#123;<br>    <span class="hljs-comment">// Identical to &quot;private&quot; alone</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">f</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;WithFinals.f()&quot;</span>);&#125;<br>    <span class="hljs-comment">// Also automatically &quot;final&quot;</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">g</span><span class="hljs-params">()</span>&#123; print(<span class="hljs-string">&quot;WithFinals.g()&quot;</span>);&#125;<br>&#125;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">OverridingPrivate</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">WithFinals</span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">f</span><span class="hljs-params">()</span>&#123;<br>        print(<span class="hljs-string">&quot;OverridingPrivate.f()&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">g</span><span class="hljs-params">()</span>&#123;<br>        print(<span class="hljs-string">&quot;OverridingPrivate.g()&quot;</span>);<br>    &#125;<br>&#125;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">OverridingPrivate2</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">OverridingPrivate</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">f</span><span class="hljs-params">()</span>&#123;<br>        print(<span class="hljs-string">&quot;OverridingPrivate2.f()&quot;</span>);<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">g</span><span class="hljs-params">()</span>&#123;<br>        print(<span class="hljs-string">&quot;OverridingPrivate2.g()&quot;</span>);<br>    &#125;<br>&#125;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FinalOverridingIllusion</span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>        <span class="hljs-type">OverridingPrivate2</span> <span class="hljs-variable">op2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OverridingPrivate2</span>();<br>        op2.f();<br>        op2.g();<br>        <span class="hljs-comment">// you can upcast:</span><br>        <span class="hljs-type">OverridingPrivate</span> <span class="hljs-variable">op</span> <span class="hljs-operator">=</span> op2;<br>        <span class="hljs-comment">//but you can&#x27;t	call the methods:</span><br>        <span class="hljs-comment">//! op.f();</span><br>        <span class="hljs-comment">//! op.g();</span><br>        <span class="hljs-comment">// same here:</span><br>        <span class="hljs-type">WithFinals</span> <span class="hljs-variable">wf</span> <span class="hljs-operator">=</span> op2;<br>        <span class="hljs-comment">//! wf.f();</span><br>        <span class="hljs-comment">//! wf.g();</span><br>    &#125;<br>&#125;<br><span class="hljs-comment">/* Output:</span><br><span class="hljs-comment">OverridingPrivate2.f()</span><br><span class="hljs-comment">OverridingPrivate2.g()</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+
+<p>”覆盖”只有在某方法是基类的接口的一部分时才会出现。即，必须能将一个对象向上转型为它的基本类型并调用相同的方法。如果某方法为private，他就不是基类接口的一部分。他仅是一些隐藏于类中的程序代码，只不过时具有相同的名称而已。但如果在导出类中以相同的名称生成一个public、protected或包访问权限方法的话，该方法就不会产生在基类中出现的“仅具有相同名称”的情况。此时你并没有覆盖该方法，仅是生成了一个新的方法。由于private方法无法触及而且能有效隐藏，所以除了把它看成时因为它所归属的类的组织结构的原因而存在外，其他任何事物都不需要考虑到它。</p>
+<h3 id="final类"><a href="#final类" class="headerlink" title="final类"></a>final类</h3><p>​    当将某个类的整体定义为final时，就表明了你不打算继承该类。而且也不允许别人这么做。换句话说，出于某种考虑，你对该类的设计用不需要做任何变动，或者出于安全考虑，你不希望它有子类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">SmallBrain</span>&#123;&#125;<br><br><span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Dinosaur</span>&#123;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">7</span>;<br>    <span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span>;<br>    <span class="hljs-type">SmallBrain</span> <span class="hljs-variable">x</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SmallBrain</span>();<br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">f</span><span class="hljs-params">()</span>&#123;&#125;<br>    <br>    <span class="hljs-comment">//! class Further extends DinoSaur&#123;&#125;</span><br>    <span class="hljs-comment">// error:Can&#x27;t extend final class &#x27;Dinosaur&#x27;</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Jurassic</span>&#123;<br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span>&#123;<br>            <span class="hljs-type">Dinosaur</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dinosaur</span>();<br>            n.f();<br>            n.i = <span class="hljs-number">40</span>;<br>            n.j++;<br>        &#125;<br>    &#125;<br>  	<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​    请注意，final类的域可以根据个人的意愿选择为是或不是final。不论类是否被定义为final，相同的规则都适用于定义为final的域。然而，由于final类禁止继承，所以final类中所有的方法都会隐式指定为final的，因为无法覆盖它们。在final类中可以给方法添加final修饰词，但这不会增添任何意义。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/04/20/newpapername/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/04/20/newpapername/" class="post-title-link" itemprop="url">Optional详解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-20 10:29:34" itemprop="dateCreated datePublished" datetime="2022-04-20T10:29:34+08:00">2022-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-21 15:45:25" itemprop="dateModified" datetime="2022-04-21T15:45:25+08:00">2022-04-21</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong><code>&lt;!--more--&gt;</code></strong></p>
+<p>在文章的开头，先说下NPE问题，NPE问题就是，我们在开发中经常碰到的NullPointerException.假设我们有两个类，他们的UML类图如下图所示</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/LsuwBn"><img src="https://s1.ax1x.com/2022/04/20/LsuwBn.png" alt="LsuwBn.png"></a></p>
+<p>在这种情况下，有如下代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">user.getAddress().getProvince();<br></code></pre></td></tr></table></figure>
+
+<p>这种写法，在user为null时，是有可能报NullPointerException异常的。为了解决这个问题，于是采用下面的写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span>(user!=<span class="hljs-literal">null</span>)&#123;<br>    <span class="hljs-type">Address</span> <span class="hljs-variable">address</span> <span class="hljs-operator">=</span> user.getAddress();<br>    <span class="hljs-keyword">if</span>(address!=<span class="hljs-literal">null</span>)&#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">province</span> <span class="hljs-operator">=</span> address.getProvince();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这种写法是比较丑陋的，为了避免上述丑陋的写法，让丑陋的设计变得优雅。JAVA8提供了Optional类来优化这种写法，接下来的正文部分进行详细说明</p>
+<h3 id="API介绍"><a href="#API介绍" class="headerlink" title="API介绍"></a>API介绍</h3><p>先介绍一下API，与其他文章不同的是，本文采取类比的方式来讲，同时结合源码。而不像其他文章一样，一个个API罗列出来，让人找不到重点。</p>
+<h4 id="1、Optional-T-value-empty-of-T-value-ofNullable-T-value"><a href="#1、Optional-T-value-empty-of-T-value-ofNullable-T-value" class="headerlink" title="1、Optional(T value),empty(),of(T value),ofNullable(T value)"></a>1、Optional(T value),empty(),of(T value),ofNullable(T value)</h4><p>这四个函数之间具有相关性，因此放在一组进行记忆。</p>
+<p>先说明一下，<code>Optional(T value)</code>，即构造函数，它是private权限的，不能由外部调用的。其余三个函数是public权限，供我们所调用。那么，Optional的本质，就是内部储存了一个真实的值，在构造的时候，就直接判断其值是否为空。好吧，这么说还是比较抽象。直接上<code>Optional(T value)</code>构造函数的源码，如下图所示</p>
+<p><a target="_blank" rel="noopener" href="https://imgtu.com/i/L617nS"><img src="https://s1.ax1x.com/2022/04/21/L617nS.png" alt="L617nS.png"></a></p>
+<p>那么，of(T value)的源码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> &lt;T&gt; Optional&lt;T&gt; <span class="hljs-title function_">of</span><span class="hljs-params">(T value)</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Optional</span>&lt;&gt;(value);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>也就是说of(T value)函数内部调用了构造函数。根据构造函数的源码我们可以得出两个结论:</p>
+<ul>
+<li>通过<code>of(T value)</code>函数所构造出的Optional对象，当Value值为空时，依然会报NullPointerException。</li>
+<li>通过<code>of(T value)</code>函数所构造出的Optional对象，当Value值不为空时，能正常构造Optional对象。</li>
+</ul>
+<p>除此之外呢，Optional类内部还维护一个value为null的对象，大概就是长下面这样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Optional</span>&lt;T&gt; &#123;<br>    <span class="hljs-comment">//省略....</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Optional&lt;?&gt; EMPTY = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Optional</span>&lt;&gt;();<br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">Optional</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">this</span>.value = <span class="hljs-literal">null</span>;<br>    &#125;<br>    <span class="hljs-comment">//省略...</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span>&lt;T&gt; Optional&lt;T&gt; <span class="hljs-title function_">empty</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-meta">@SuppressWarnings(&quot;unchecked&quot;)</span><br>        Optional&lt;T&gt; t = (Optional&lt;T&gt;) EMPTY;<br>        <span class="hljs-keyword">return</span> t;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>那么，<code>empty（）</code>的作用就是返回EMPTY对象。</p>
+<p>好了铺垫了这么多，可以说<code>ofNullable(T value)</code>的作用了，上源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> &lt;T&gt; Optional&lt;T&gt; <span class="hljs-title function_">ofNullable</span><span class="hljs-params">(T value)</span> &#123;<br>    <span class="hljs-type">return</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span>= <span class="hljs-literal">null</span> ? empty() : of(value);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>好吧，大家应该都看得懂什么意思了。相比较<code>of(T value)</code>的区别就是，当value值为null时，of(T value)会报NullPointerException异常；<code>ofNullable(T value)</code>不会throw Exception，<code>ofNullable(T value)</code>直接返回一个<code>EMPTY</code>对象。</p>
+<p>那是不是意味着，我们在项目中只用<code>ofNullable</code>函数而不用of函数呢?</p>
+<p>不是的，一个东西存在那么自然有存在的价值。当我们在运行过程中，不想隐藏<code>NullPointerException</code>。而是要立即报告，这种情况下就用Of函数。但是不得不承认，这样的场景真的很少。博主也仅在写junit测试用例中用到过此函数。</p>
+<h4 id="2、orElse-T-other-，orElseGet-Supplier-other-和orElseThrow-Supplier-exceptionSupplier"><a href="#2、orElse-T-other-，orElseGet-Supplier-other-和orElseThrow-Supplier-exceptionSupplier" class="headerlink" title="2、orElse(T other)，orElseGet(Supplier other)和orElseThrow(Supplier exceptionSupplier)"></a>2、orElse(T other)，orElseGet(Supplier other)和orElseThrow(Supplier exceptionSupplier)</h4><p>这三个函数放一组进行记忆，都是在构造函数传入的value值为null时，进行调用的。<code>orElse</code>和<code>orElseGet</code>的用法如下所示，相当于value值为null时，给予一个默认值:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Test</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">test</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>    user = Optional.ofNullable(user).orElse(createUser());<br>    user = Optional.ofNullable(user).orElseGet(() -&gt; createUser());<br><br>&#125;<br><span class="hljs-keyword">public</span> User <span class="hljs-title function_">createUser</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();<br>    user.setName(<span class="hljs-string">&quot;zhangsan&quot;</span>);<br>    <span class="hljs-keyword">return</span> user;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这两个函数的区别：当user值不为null时，<code>orElse</code>函数依然会执行createUser()方法，而<code>orElseGet</code>函数并不会执行createUser()方法，大家可自行测试。</p>
+<p>至于orElseThrow，就是value值为null时,直接抛一个异常出去，用法如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>Optional.ofNullable(user).orElseThrow(()-&gt;<span class="hljs-keyword">new</span> <span class="hljs-title class_">Exception</span>(<span class="hljs-string">&quot;用户不存在&quot;</span>));<br></code></pre></td></tr></table></figure>
+
+<h4 id="3、map-Function-mapper-和flatMap-Function-gt-mapper"><a href="#3、map-Function-mapper-和flatMap-Function-gt-mapper" class="headerlink" title="3、map(Function mapper)和flatMap(Function&gt; mapper)"></a><code>3、map(Function mapper)和flatMap(Function&gt; mapper)</code></h4><p>这两个函数放在一组记忆，这两个函数做的是转换值的操作。</p>
+<p>直接上源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"> <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Optional</span>&lt;T&gt; &#123;<br>    <span class="hljs-comment">//省略....</span><br>     <span class="hljs-keyword">public</span>&lt;U&gt; Optional&lt;U&gt; <span class="hljs-title function_">map</span><span class="hljs-params">(Function&lt;? <span class="hljs-built_in">super</span> T, ? extends U&gt; mapper)</span> &#123;<br>        Objects.requireNonNull(mapper);<br>        <span class="hljs-keyword">if</span> (!isPresent())<br>            <span class="hljs-keyword">return</span> empty();<br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> Optional.ofNullable(mapper.apply(value));<br>        &#125;<br>    &#125;<br>    <span class="hljs-comment">//省略...</span><br>     <span class="hljs-keyword">public</span>&lt;U&gt; Optional&lt;U&gt; <span class="hljs-title function_">flatMap</span><span class="hljs-params">(Function&lt;? <span class="hljs-built_in">super</span> T, Optional&lt;U&gt;&gt; mapper)</span> &#123;<br>        Objects.requireNonNull(mapper);<br>        <span class="hljs-keyword">if</span> (!isPresent())<br>            <span class="hljs-keyword">return</span> empty();<br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> Objects.requireNonNull(mapper.apply(value));<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这两个函数，在函数体上没什么区别。唯一区别的就是入参，map函数所接受的入参类型为<code>Function&lt;? super T, ? extends U&gt;</code>，而flapMap的入参类型为<code>Function&lt;? super T, Optional&lt;U&gt;&gt;</code>。</p>
+<p>在具体用法上，对于map而言：</p>
+<p>如果User结构是下面这样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> name;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这时候取name的写法如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">city</span> <span class="hljs-operator">=</span> Optional.ofNullable(user).map(u-&gt; u.getName()).get();<br></code></pre></td></tr></table></figure>
+
+<p>对于flatMap而言:</p>
+<p>如果User结构是下面这样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">public</span> Optional&lt;String&gt; <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> Optional.ofNullable(name);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这时候取name的写法如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">city</span> <span class="hljs-operator">=</span> Optional.ofNullable(user).flatMap(u-&gt; u.getName()).get();<br></code></pre></td></tr></table></figure>
+
+<h4 id="4、isPresent-和ifPresent-Consumer-consumer"><a href="#4、isPresent-和ifPresent-Consumer-consumer" class="headerlink" title="4、isPresent()和ifPresent(Consumer consumer)"></a>4、isPresent()和ifPresent(Consumer consumer)</h4><p>这两个函数放在一起记忆，<code>isPresent</code>即判断value值是否为空，而<code>ifPresent</code>就是在value值不为空时，做一些操作。这两个函数的源码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Optional</span>&lt;T&gt; &#123;<br>    <span class="hljs-comment">//省略....</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isPresent</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> value != <span class="hljs-literal">null</span>;<br>    &#125;<br>    <span class="hljs-comment">//省略...</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ifPresent</span><span class="hljs-params">(Consumer&lt;? <span class="hljs-built_in">super</span> T&gt; consumer)</span> &#123;<br>        <span class="hljs-keyword">if</span> (value != <span class="hljs-literal">null</span>)<br>            consumer.accept(value);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>需要额外说明的是，大家千万不要把</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (user != <span class="hljs-literal">null</span>)&#123;<br>   <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> do something</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>给写成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> Optional.ofNullable(user);<br><span class="hljs-keyword">if</span> (Optional.isPresent())&#123;<br>   <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> do something</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>因为这样写，代码结构依然丑陋。博主会在后面给出正确写法</p>
+<p>至于<code>ifPresent(Consumer&lt;? super T&gt; consumer)</code>，用法也很简单，如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">Optional.ofNullable(user).ifPresent(u-&gt;&#123;<br>    <span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> do something</span><br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<h4 id="5、filter-Predicate-predicate"><a href="#5、filter-Predicate-predicate" class="headerlink" title="5、filter(Predicate predicate)"></a>5、filter(Predicate predicate)</h4><p>不多说，直接上源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Optional</span>&lt;T&gt; &#123;<br>    <span class="hljs-comment">//省略....</span><br>   Objects.requireNonNull(predicate);<br>        <span class="hljs-keyword">if</span> (!isPresent())<br>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>;<br>        <span class="hljs-keyword">else</span><br>            <span class="hljs-keyword">return</span> predicate.test(value) ? <span class="hljs-built_in">this</span> : empty();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>filter 方法接受一个 <code>Predicate</code> 来对 <code>Optional</code> 中包含的值进行过滤，如果包含的值满足条件，那么还是返回这个 Optional；否则返回 <code>Optional.empty</code>。</p>
+<p>用法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Optional&lt;User&gt; user1 = Optional.ofNullable(user).filter(u -&gt; u.getName().length()&lt;<span class="hljs-number">6</span>);<br></code></pre></td></tr></table></figure>
+
+<p>如上所示，如果user的name的长度是小于6的，则返回。如果是大于6的，则返回一个EMPTY对象。</p>
+<h2 id="实战使用"><a href="#实战使用" class="headerlink" title="实战使用"></a><strong>实战使用</strong></h2><h4 id="例一"><a href="#例一" class="headerlink" title="例一"></a>例一</h4><p>在函数方法中</p>
+<p>以前写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">getCity</span><span class="hljs-params">(User user)</span>  <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-keyword">if</span>(user!=<span class="hljs-literal">null</span>)&#123;<br>            <span class="hljs-keyword">if</span>(user.getAddress()!=<span class="hljs-literal">null</span>)&#123;<br>                <span class="hljs-type">Address</span> <span class="hljs-variable">address</span> <span class="hljs-operator">=</span> user.getAddress();<br>                <span class="hljs-keyword">if</span>(address.getCity()!=<span class="hljs-literal">null</span>)&#123;<br>                    <span class="hljs-keyword">return</span> address.getCity();<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Excpetion</span>(<span class="hljs-string">&quot;取值错误&quot;</span>);<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+<p>JAVA8写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">getCity</span><span class="hljs-params">(User user)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>    <span class="hljs-keyword">return</span> Optional.ofNullable(user)<br>                   .map(u-&gt; u.getAddress())<br>                   .map(a-&gt;a.getCity())<br>                   .orElseThrow(()-&gt;<span class="hljs-keyword">new</span> <span class="hljs-title class_">Exception</span>(<span class="hljs-string">&quot;取指错误&quot;</span>));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="例二"><a href="#例二" class="headerlink" title="例二"></a>例二</h4><p>比如，在主程序中</p>
+<p>以前写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span>(user!=<span class="hljs-literal">null</span>)&#123;<br>    dosomething(user);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>JAVA8写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"> Optional.ofNullable(user)<br>    .ifPresent(u-&gt;&#123;<br>        dosomething(u);<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<h4 id="例三"><a href="#例三" class="headerlink" title="例三"></a>例三</h4><p>以前写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(User user)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>    <span class="hljs-keyword">if</span>(user!=<span class="hljs-literal">null</span>)&#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> user.getName();<br>        <span class="hljs-keyword">if</span>(<span class="hljs-string">&quot;zhangsan&quot;</span>.equals(name))&#123;<br>            <span class="hljs-keyword">return</span> user;<br>        &#125;<br>    &#125;<span class="hljs-keyword">else</span>&#123;<br>        user = <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();<br>        user.setName(<span class="hljs-string">&quot;zhangsan&quot;</span>);<br>        <span class="hljs-keyword">return</span> user;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>java8写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> User <span class="hljs-title function_">getUser</span><span class="hljs-params">(User user)</span> &#123;<br>    <span class="hljs-keyword">return</span> Optional.ofNullable(user)<br>                   .filter(u-&gt;<span class="hljs-string">&quot;zhangsan&quot;</span>.equals(u.getName()))<br>                   .orElseGet(()-&gt; &#123;<br>                        <span class="hljs-type">User</span> <span class="hljs-variable">user1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();<br>                        user1.setName(<span class="hljs-string">&quot;zhangsan&quot;</span>);<br>                        <span class="hljs-keyword">return</span> user1;<br>                   &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其他的例子，不一一列举了。不过采用这种链式编程，虽然代码优雅了。但是，逻辑性没那么明显，可读性有所降低，大家项目中看情况酌情使用。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
   </nav>
 
 
@@ -1289,7 +550,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
