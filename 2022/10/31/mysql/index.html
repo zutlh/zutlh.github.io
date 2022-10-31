@@ -20,19 +20,19 @@
     var CONFIG = {"hostname":"zutlh.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="记录身边的贵物">
-<meta property="og:type" content="website">
-<meta property="og:title" content="about">
-<meta property="og:url" content="http://zutlh.top/about/index.html">
+  <meta name="description" content="项目中怎么给不同租户做的数据隔离？分表，一个租户一张表，使用sharding-jdbc做中间件，我们把租户id作为连续的全局唯一id，给了一个 B+树做索引为什么比B树快？因为B树的数据指针存储在各层节点中 , B+树的数据都存储在了叶子节点,而且叶子节点之间增加了顺序访问指针 所以如果是个范围的查询 , 那么B+树就只需要找到前一个和后一个 ,中间遍历链表就可以了 B树还要不停的去遍历整个树 ,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql">
+<meta property="og:url" content="http://zutlh.top/2022/10/31/mysql/index.html">
 <meta property="og:site_name" content="山海经">
-<meta property="og:description" content="记录身边的贵物">
+<meta property="og:description" content="项目中怎么给不同租户做的数据隔离？分表，一个租户一张表，使用sharding-jdbc做中间件，我们把租户id作为连续的全局唯一id，给了一个 B+树做索引为什么比B树快？因为B树的数据指针存储在各层节点中 , B+树的数据都存储在了叶子节点,而且叶子节点之间增加了顺序访问指针 所以如果是个范围的查询 , 那么B+树就只需要找到前一个和后一个 ,中间遍历链表就可以了 B树还要不停的去遍历整个树 ,">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-04-21T08:18:10.000Z">
-<meta property="article:modified_time" content="2022-04-21T08:59:43.477Z">
+<meta property="article:published_time" content="2022-10-31T06:12:26.000Z">
+<meta property="article:modified_time" content="2022-10-31T06:12:55.524Z">
 <meta property="article:author" content="Liu Hao">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://zutlh.top/about/">
+<link rel="canonical" href="http://zutlh.top/2022/10/31/mysql/">
 
 
 <script id="page-configurations">
@@ -40,13 +40,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>about | 山海经
-</title>
+  <title>mysql | 山海经</title>
   
 
 
@@ -143,43 +142,86 @@
       <div class="main-inner">
         <div class="content-wrap">
           
-  
-  
 
-          <div class="content page posts-expand">
+          <div class="content post posts-expand">
             
 
     
-    
-    
-    <div class="post-block" lang="zh-CN">
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/10/31/mysql/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
       <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql
+        </h1>
 
-<h1 class="post-title" itemprop="name headline">about
-</h1>
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
 
-<div class="post-meta">
+              <time title="创建时间：2022-10-31 14:12:26 / 修改时间：14:12:55" itemprop="dateCreated datePublished" datetime="2022-10-31T14:12:26+08:00">2022-10-31</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="项目中怎么给不同租户做的数据隔离？"><a href="#项目中怎么给不同租户做的数据隔离？" class="headerlink" title="项目中怎么给不同租户做的数据隔离？"></a>项目中怎么给不同租户做的数据隔离？</h3><p>分表，一个租户一张表，使用sharding-jdbc做中间件，我们把租户id作为连续的全局唯一id，给了一个</p>
+<h3 id="B-树做索引为什么比B树快？"><a href="#B-树做索引为什么比B树快？" class="headerlink" title="B+树做索引为什么比B树快？"></a>B+树做索引为什么比B树快？</h3><p>因为B树的数据指针存储在各层节点中 , B+树的数据都存储在了叶子节点,而且叶子节点之间增加了顺序访问指针</p>
+<p>所以如果是个范围的查询 , 那么B+树就只需要找到前一个和后一个 ,中间遍历链表就可以了</p>
+<p>B树还要不停的去遍历整个树 , 才能进行范围查询 , 也是慢的.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/31/IO/" rel="prev" title="IO">
+      <i class="fa fa-chevron-left"></i> IO
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/31/redis/" rel="next" title="redis">
+      redis <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
   
 
-</div>
-
-</header>
-
-      
-      
-      
-      <div class="post-body">
-          
-      </div>
-      
-      
-      
-    </div>
-    
-
-    
-    
-    
 
 
           </div>
@@ -230,6 +272,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E4%B8%AD%E6%80%8E%E4%B9%88%E7%BB%99%E4%B8%8D%E5%90%8C%E7%A7%9F%E6%88%B7%E5%81%9A%E7%9A%84%E6%95%B0%E6%8D%AE%E9%9A%94%E7%A6%BB%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">项目中怎么给不同租户做的数据隔离？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-%E6%A0%91%E5%81%9A%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BB%80%E4%B9%88%E6%AF%94B%E6%A0%91%E5%BF%AB%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">B+树做索引为什么比B树快？</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

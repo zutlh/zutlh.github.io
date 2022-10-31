@@ -20,19 +20,22 @@
     var CONFIG = {"hostname":"zutlh.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="final原理设置final变量的原理理解了volatile原理，再对比final的实现就比较简单了 123public class TestFinal&amp;#123;    final int a &#x3D; 20;&amp;#125;  字节码 123456780: aload_01: invokespecial #1 &#x2F;&#x2F; Method java&#x2F;lang&#x2F;Object.&quot;&lt;init&gt;&amp;q">
+  <meta name="description" content="synchronized锁升级的过程？升级过程：偏向锁-&gt;轻量级锁-&gt;重量级锁 synchronized第一次给对象加锁的时候，检查对象头的线程id，如果说线程id为空，则jvm让改对象持有偏向锁，并将对象头的线程id设为该线程id， 当其他线程尝试给该对象加锁的时候，发现对象头的线程id和当前线程id不一致，则升级为轻量级锁，然后通过自旋尝试获取锁，如果在自旋一定次数后 还是没有获取">
 <meta property="og:type" content="article">
-<meta property="og:title" content="final原理">
-<meta property="og:url" content="http://zutlh.top/2022/07/07/final%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:title" content="并发">
+<meta property="og:url" content="http://zutlh.top/2022/10/31/%E5%B9%B6%E5%8F%91/index.html">
 <meta property="og:site_name" content="山海经">
-<meta property="og:description" content="final原理设置final变量的原理理解了volatile原理，再对比final的实现就比较简单了 123public class TestFinal&amp;#123;    final int a &#x3D; 20;&amp;#125;  字节码 123456780: aload_01: invokespecial #1 &#x2F;&#x2F; Method java&#x2F;lang&#x2F;Object.&quot;&lt;init&gt;&amp;q">
+<meta property="og:description" content="synchronized锁升级的过程？升级过程：偏向锁-&gt;轻量级锁-&gt;重量级锁 synchronized第一次给对象加锁的时候，检查对象头的线程id，如果说线程id为空，则jvm让改对象持有偏向锁，并将对象头的线程id设为该线程id， 当其他线程尝试给该对象加锁的时候，发现对象头的线程id和当前线程id不一致，则升级为轻量级锁，然后通过自旋尝试获取锁，如果在自旋一定次数后 还是没有获取">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-07-07T07:29:11.000Z">
-<meta property="article:modified_time" content="2022-07-07T07:52:33.360Z">
+<meta property="og:image" content="https://img1.imgtp.com/2022/10/17/fTnsw2R0.png">
+<meta property="og:image" content="https://img1.imgtp.com/2022/10/17/yrIGSvyQ.png">
+<meta property="article:published_time" content="2022-10-31T06:14:16.000Z">
+<meta property="article:modified_time" content="2022-10-31T06:14:33.446Z">
 <meta property="article:author" content="Liu Hao">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img1.imgtp.com/2022/10/17/fTnsw2R0.png">
 
-<link rel="canonical" href="http://zutlh.top/2022/07/07/final%E5%8E%9F%E7%90%86/">
+<link rel="canonical" href="http://zutlh.top/2022/10/31/%E5%B9%B6%E5%8F%91/">
 
 
 <script id="page-configurations">
@@ -45,7 +48,7 @@
   };
 </script>
 
-  <title>final原理 | 山海经</title>
+  <title>并发 | 山海经</title>
   
 
 
@@ -150,7 +153,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/07/07/final%E5%8E%9F%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/10/31/%E5%B9%B6%E5%8F%91/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -163,7 +166,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          final原理
+          并发
         </h1>
 
         <div class="post-meta">
@@ -174,7 +177,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-07 15:29:11 / 修改时间：15:52:33" itemprop="dateCreated datePublished" datetime="2022-07-07T15:29:11+08:00">2022-07-07</time>
+              <time title="创建时间：2022-10-31 14:14:16 / 修改时间：14:14:33" itemprop="dateCreated datePublished" datetime="2022-10-31T14:14:16+08:00">2022-10-31</time>
             </span>
 
           
@@ -188,14 +191,40 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="final原理"><a href="#final原理" class="headerlink" title="final原理"></a>final原理</h3><h4 id="设置final变量的原理"><a href="#设置final变量的原理" class="headerlink" title="设置final变量的原理"></a>设置final变量的原理</h4><p>理解了volatile原理，再对比final的实现就比较简单了</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">TestFinal</span>&#123;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">20</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
-
-<p>字节码</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">0</span>: aload_0<br><span class="hljs-number">1</span>: invokespecial #<span class="hljs-number">1</span> <span class="hljs-comment">// Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br><span class="hljs-number">4</span>: aload_0<br><span class="hljs-number">5</span>: bipush <span class="hljs-number">20</span>		<span class="hljs-comment">// 将值直接放入栈中</span><br><span class="hljs-number">7</span>: putfield #<span class="hljs-number">2</span> 		<span class="hljs-comment">// Field a:I</span><br>&lt;-- 写屏障<br><span class="hljs-number">10</span>: <span class="hljs-keyword">return</span><br><br></code></pre></td></tr></table></figure>
-
-<p>发现final变量的赋值也会通过putfield指令来完成，同样在这条指令之后也会加入写屏障，保证在其他线程读到它的值时不会出现为0的情况。</p>
-<p>其他线程访问 final 修饰的变量<strong>会复制一份放入栈中</strong>，效率更高</p>
+        <h3 id="synchronized锁升级的过程？"><a href="#synchronized锁升级的过程？" class="headerlink" title="synchronized锁升级的过程？"></a>synchronized锁升级的过程？</h3><p>升级过程：偏向锁-&gt;轻量级锁-&gt;重量级锁</p>
+<p>synchronized第一次给对象加锁的时候，检查对象头的线程id，如果说线程id为空，则jvm让改对象持有偏向锁，并将对象头的线程id设为该线程id，</p>
+<p>当其他线程尝试给该对象加锁的时候，发现对象头的线程id和当前线程id不一致，则升级为轻量级锁，然后通过自旋尝试获取锁，如果在自旋一定次数后</p>
+<p>还是没有获取到，则升级为重量级锁</p>
+<h3 id="轻量级锁和重量级锁的区别？"><a href="#轻量级锁和重量级锁的区别？" class="headerlink" title="轻量级锁和重量级锁的区别？"></a>轻量级锁和重量级锁的区别？</h3><p>在对象存储布局的不同：</p>
+<p><img src="https://img1.imgtp.com/2022/10/17/fTnsw2R0.png" alt="1666006571126.png"></p>
+<p>在性能上：</p>
+<p>轻量级锁响应速度较快</p>
+<p>因为<strong>重量级锁是需要依靠操作系统来实现互斥锁的，这导致大量上下文切换，消耗大量CPU，影响性能。</strong></p>
+<p>但是重量级锁吞吐量较大。</p>
+<h3 id="线程池执行流程？"><a href="#线程池执行流程？" class="headerlink" title="线程池执行流程？"></a>线程池执行流程？</h3><p><img src="https://img1.imgtp.com/2022/10/17/yrIGSvyQ.png" alt="1666006893525.png"></p>
+<h3 id="哪种情况下变量更适合用volatile而不是synchronnized？"><a href="#哪种情况下变量更适合用volatile而不是synchronnized？" class="headerlink" title="哪种情况下变量更适合用volatile而不是synchronnized？"></a>哪种情况下变量更适合用volatile而不是synchronnized？</h3><p>一个线程写，多个线程读的变量。</p>
+<h3 id="线程池核心参数？"><a href="#线程池核心参数？" class="headerlink" title="线程池核心参数？"></a>线程池核心参数？</h3><ul>
+<li><p>corePoolSize ： 核心线程大小。线程池一直运行，核心线程就不会停止。</p>
+</li>
+<li><p>maximumPoolSize ：线程池最大线程数量。非核心线程数量&#x3D;maximumPoolSize-corePoolSize</p>
+</li>
+<li><p>keepAliveTime ：非核心线程的心跳时间。如果非核心线程在keepAliveTime内没有运行任务，非核心线程会消亡。</p>
+</li>
+<li><p>workQueue ：阻塞队列。ArrayBlockingQueue，LinkedBlockingQueue等，用来存放线程任务。</p>
+</li>
+<li><p>defaultHandler ：饱和策略。ThreadPoolExecutor类中一共有4种饱和策略。通过实现</p>
+<p>RejectedExecutionHandler</p>
+<p>接口。</p>
+<ul>
+<li>AbortPolicy ： 线程任务丢弃报错。默认饱和策略。</li>
+<li>DiscardPolicy ： 线程任务直接丢弃不报错。</li>
+<li>DiscardOldestPolicy ： 将workQueue<strong>队首任务丢弃</strong>，将最新线程任务重新加入队列执行。</li>
+<li>CallerRunsPolicy ：线程池之外的线程直接调用run方法执行。</li>
+</ul>
+</li>
+<li><p>ThreadFactory ：线程工厂。新建线程工厂</p>
+</li>
+</ul>
 
     </div>
 
@@ -211,12 +240,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/07/07/volatile%E5%8E%9F%E7%90%86/" rel="prev" title="volatile原理">
-      <i class="fa fa-chevron-left"></i> volatile原理
+    <a href="/2022/10/31/spring/" rel="prev" title="spring">
+      <i class="fa fa-chevron-left"></i> spring
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/07/07/aqs/" rel="next" title="aqs">
-      aqs <i class="fa fa-chevron-right"></i>
+    <a href="/2022/10/31/%E5%8F%8D%E5%B0%84/" rel="next" title="反射">
+      反射 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -276,7 +305,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#final%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">final原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AEfinal%E5%8F%98%E9%87%8F%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">设置final变量的原理</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#synchronized%E9%94%81%E5%8D%87%E7%BA%A7%E7%9A%84%E8%BF%87%E7%A8%8B%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">synchronized锁升级的过程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81%E5%92%8C%E9%87%8D%E9%87%8F%E7%BA%A7%E9%94%81%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">轻量级锁和重量级锁的区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%89%A7%E8%A1%8C%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">线程池执行流程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%AA%E7%A7%8D%E6%83%85%E5%86%B5%E4%B8%8B%E5%8F%98%E9%87%8F%E6%9B%B4%E9%80%82%E5%90%88%E7%94%A8volatile%E8%80%8C%E4%B8%8D%E6%98%AFsynchronnized%EF%BC%9F"><span class="nav-number">4.</span> <span class="nav-text">哪种情况下变量更适合用volatile而不是synchronnized？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0%EF%BC%9F"><span class="nav-number">5.</span> <span class="nav-text">线程池核心参数？</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
