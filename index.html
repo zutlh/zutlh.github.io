@@ -147,6 +147,68 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/11/06/%E6%B3%A8%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/11/06/%E6%B3%A8%E8%A7%A3/" class="post-title-link" itemprop="url">注解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-11-06 14:44:02 / 修改时间：15:39:07" itemprop="dateCreated datePublished" datetime="2022-11-06T14:44:02+08:00">2022-11-06</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="注解的作用范围？"><a href="#注解的作用范围？" class="headerlink" title="注解的作用范围？"></a>注解的作用范围？</h3><p>1、SOURCE：@Override，编译时起作用</p>
+<p>2、CLASS：注解信息保留到类的class文件中</p>
+<p>3、RUNTIME：@WebServlet，程序运行时起作用。</p>
+<h3 id="注解的原理？"><a href="#注解的原理？" class="headerlink" title="注解的原理？"></a>注解的原理？</h3><p>注解可以理解为一种标识，我们有一些程序会去读取这些标识，然后通过反射机制判断进而完成相关的方法。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/10/31/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -303,10 +365,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-10-31 14:14:16 / 修改时间：14:14:33" itemprop="dateCreated datePublished" datetime="2022-10-31T14:14:16+08:00">2022-10-31</time>
+              <time title="创建时间：2022-10-31 14:14:16" itemprop="dateCreated datePublished" datetime="2022-10-31T14:14:16+08:00">2022-10-31</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-06 16:45:02" itemprop="dateModified" datetime="2022-11-06T16:45:02+08:00">2022-11-06</time>
+              </span>
 
           
 
@@ -324,35 +392,41 @@
 <p>当其他线程尝试给该对象加锁的时候，发现对象头的线程id和当前线程id不一致，则升级为轻量级锁，然后通过自旋尝试获取锁，如果在自旋一定次数后</p>
 <p>还是没有获取到，则升级为重量级锁</p>
 <h3 id="轻量级锁和重量级锁的区别？"><a href="#轻量级锁和重量级锁的区别？" class="headerlink" title="轻量级锁和重量级锁的区别？"></a>轻量级锁和重量级锁的区别？</h3><p>在对象存储布局的不同：</p>
-<p><img src="https://img1.imgtp.com/2022/10/17/fTnsw2R0.png" alt="1666006571126.png"></p>
+<p><a target="_blank" rel="noopener" href="https://imgse.com/i/xO2WOH"><img src="https://s1.ax1x.com/2022/11/05/xO2WOH.png" alt="xO2WOH.png"></a></p>
 <p>在性能上：</p>
 <p>轻量级锁响应速度较快</p>
 <p>因为<strong>重量级锁是需要依靠操作系统来实现互斥锁的，这导致大量上下文切换，消耗大量CPU，影响性能。</strong></p>
 <p>但是重量级锁吞吐量较大。</p>
-<h3 id="线程池执行流程？"><a href="#线程池执行流程？" class="headerlink" title="线程池执行流程？"></a>线程池执行流程？</h3><p><img src="https://img1.imgtp.com/2022/10/17/yrIGSvyQ.png" alt="1666006893525.png"></p>
-<h3 id="哪种情况下变量更适合用volatile而不是synchronnized？"><a href="#哪种情况下变量更适合用volatile而不是synchronnized？" class="headerlink" title="哪种情况下变量更适合用volatile而不是synchronnized？"></a>哪种情况下变量更适合用volatile而不是synchronnized？</h3><p>一个线程写，多个线程读的变量。</p>
-<h3 id="线程池核心参数？"><a href="#线程池核心参数？" class="headerlink" title="线程池核心参数？"></a>线程池核心参数？</h3><ul>
-<li><p>corePoolSize ： 核心线程大小。线程池一直运行，核心线程就不会停止。</p>
-</li>
-<li><p>maximumPoolSize ：线程池最大线程数量。非核心线程数量&#x3D;maximumPoolSize-corePoolSize</p>
-</li>
-<li><p>keepAliveTime ：非核心线程的心跳时间。如果非核心线程在keepAliveTime内没有运行任务，非核心线程会消亡。</p>
-</li>
-<li><p>workQueue ：阻塞队列。ArrayBlockingQueue，LinkedBlockingQueue等，用来存放线程任务。</p>
-</li>
-<li><p>defaultHandler ：饱和策略。ThreadPoolExecutor类中一共有4种饱和策略。通过实现</p>
-<p>RejectedExecutionHandler</p>
-<p>接口。</p>
+<h3 id="线程池执行流程？"><a href="#线程池执行流程？" class="headerlink" title="线程池执行流程？"></a>线程池执行流程？</h3><h3 id=""><a href="#" class="headerlink" title=""></a><a target="_blank" rel="noopener" href="https://imgse.com/i/xO2uQg"><img src="https://s1.ax1x.com/2022/11/05/xO2uQg.png" alt="xO2uQg.png"></a></h3><h3 id="哪种情况下变量更适合用volatile而不是synchronnized？"><a href="#哪种情况下变量更适合用volatile而不是synchronnized？" class="headerlink" title="哪种情况下变量更适合用volatile而不是synchronnized？"></a>哪种情况下变量更适合用volatile而不是synchronnized？</h3><p>一个线程写，多个线程读的变量。</p>
+<h3 id="你说下线程池核心参数？"><a href="#你说下线程池核心参数？" class="headerlink" title="你说下线程池核心参数？"></a>你说下线程池核心参数？</h3><p>1、核心线程池大小：只要线程池一直运行，核心线程就不会停止</p>
+<p>2、最大线程数：线程池的最大线程数量，非核心线程 &#x3D; 最大线程数-核心线程池大小</p>
+<p>3、存活时间：如果当前线程数量大于核心线程数量，只要线程空闲时间大于存活时间，将会释放空闲线程。</p>
+<p>4、时间单位</p>
+<p>5、阻塞队列 ：有ArrayBlockingQueue，LinkedBlockingQueue等，用来存放线程任务</p>
+<p>6、拒绝策略：</p>
 <ul>
-<li>AbortPolicy ： 线程任务丢弃报错。默认饱和策略。</li>
-<li>DiscardPolicy ： 线程任务直接丢弃不报错。</li>
-<li>DiscardOldestPolicy ： 将workQueue<strong>队首任务丢弃</strong>，将最新线程任务重新加入队列执行。</li>
-<li>CallerRunsPolicy ：线程池之外的线程直接调用run方法执行。</li>
+<li>AbortPolicy:线程任务丢弃并报错，默认拒绝策略</li>
+<li>DiscardPolicy：线程任务丢弃不报错</li>
+<li>DicardOldestPolicy：将阻塞队列队首任务丢弃，并且将最新线程任务重新加入队列执行。</li>
+<li>CallerRunsPolicy：线程池之外的线程直接调用run方法执行。</li>
 </ul>
-</li>
-<li><p>ThreadFactory ：线程工厂。新建线程工厂</p>
-</li>
+<p>7、线程工厂</p>
+<h3 id="常见的线程池有哪几种？"><a href="#常见的线程池有哪几种？" class="headerlink" title="常见的线程池有哪几种？"></a>常见的线程池有哪几种？</h3><p>1、newCachedThreadPool</p>
+<p>可缓存的线程池</p>
+<p>2、newFixedThreadPool</p>
+<p>指定工作线程数量</p>
+<p>3、newSingleThreadExecutor</p>
+<p>单线程化的Executor，即只有唯一的一个工作线程</p>
+<p>4、newScheduleThreadPool</p>
+<p>支持定时的以及周期性的任务执行</p>
+<h3 id="你们项目中用的哪种线程池？（你们项目中线程池是怎么配置的）"><a href="#你们项目中用的哪种线程池？（你们项目中线程池是怎么配置的）" class="headerlink" title="你们项目中用的哪种线程池？（你们项目中线程池是怎么配置的）"></a>你们项目中用的哪种线程池？（你们项目中线程池是怎么配置的）</h3><p>我们是自己配置的线程池，这个是根据不同的业务场景（CPU密集型任务、IO密集型任务）配置不同的线程池，一般IO密集型的线程池，所以我们的核心线程数为CPU核心数，最大线程数为CPU核心数的2倍，非核心线程的存活时间为2分钟，阻塞队列用的是LinkedBlockingQueue容量为当前虚拟机的最大内存，拒绝策略使用的是CallerRunsPolicy，线程工厂会配一个线程名称。</p>
+<h3 id="阻塞队列为什么选择LinkedBlockingQueue？"><a href="#阻塞队列为什么选择LinkedBlockingQueue？" class="headerlink" title="阻塞队列为什么选择LinkedBlockingQueue？"></a>阻塞队列为什么选择LinkedBlockingQueue？</h3><p>因为LinkedBlockingQueue是无界队列，队列大小无限制</p>
+<h3 id="为什么拒绝策略使用CallerRunsPolicy？"><a href="#为什么拒绝策略使用CallerRunsPolicy？" class="headerlink" title="为什么拒绝策略使用CallerRunsPolicy？"></a>为什么拒绝策略使用CallerRunsPolicy？</h3><p>两点好处：</p>
+<ul>
+<li>新提交的任务不会被丢失，这样不会造成业务损失</li>
+<li>由于谁提交任务谁就要负责执行，在执行任务这段时间由于提交任务的线程被占用，也就不会提交的新的任务，在此期间，线程池中的线程可以利用这段时间执行调一部分任务，相当于给了线程池一段缓冲期。</li>
 </ul>
+<h3 id="一个线程池，core-x3D-7，max-x3D-20，queue-x3D-50，100并发进来怎么分配？"><a href="#一个线程池，core-x3D-7，max-x3D-20，queue-x3D-50，100并发进来怎么分配？" class="headerlink" title="一个线程池，core&#x3D;7，max&#x3D;20，queue&#x3D;50，100并发进来怎么分配？"></a>一个线程池，core&#x3D;7，max&#x3D;20，queue&#x3D;50，100并发进来怎么分配？</h3><p>7个会立即执行，50个会进入队列，再开13个非核心线程进行执行</p>
 
       
     </div>
@@ -987,69 +1061,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/07/11/ReentrantLock%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/07/11/ReentrantLock%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">ReentrantLock原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2022-07-11 15:58:04 / 修改时间：16:30:41" itemprop="dateCreated datePublished" datetime="2022-07-11T15:58:04+08:00">2022-07-11</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="ReentrantLock原理"><a href="#ReentrantLock原理" class="headerlink" title="ReentrantLock原理"></a>ReentrantLock原理</h3><p><img src="https://s1.imagehub.cc/images/2022/07/11/image.png" alt="image.png"></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1115,7 +1130,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">31</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

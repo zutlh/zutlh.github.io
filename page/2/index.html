@@ -147,6 +147,65 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/07/11/ReentrantLock%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Liu Hao">
+      <meta itemprop="description" content="记录身边的贵物">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="山海经">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/11/ReentrantLock%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">ReentrantLock原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-11 15:58:04 / 修改时间：16:30:41" itemprop="dateCreated datePublished" datetime="2022-07-11T15:58:04+08:00">2022-07-11</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="ReentrantLock原理"><a href="#ReentrantLock原理" class="headerlink" title="ReentrantLock原理"></a>ReentrantLock原理</h3><p><img src="https://s1.imagehub.cc/images/2022/07/11/image.png" alt="image.png"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/07/07/aqs/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -968,104 +1027,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/06/30/wait-notify%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Liu Hao">
-      <meta itemprop="description" content="记录身边的贵物">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="山海经">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/06/30/wait-notify%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">wait/notify原理</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-06-30 16:51:42" itemprop="dateCreated datePublished" datetime="2022-06-30T16:51:42+08:00">2022-06-30</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-06 14:53:48" itemprop="dateModified" datetime="2022-07-06T14:53:48+08:00">2022-07-06</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="wait-notify"><a href="#wait-notify" class="headerlink" title="wait notify"></a>wait notify</h2><h3 id="原理之wait-x2F-notify"><a href="#原理之wait-x2F-notify" class="headerlink" title="原理之wait&#x2F;notify"></a>原理之wait&#x2F;notify</h3><p>需要获取对象锁后才可以调用 <code>锁对象.wait()</code>，notify 随机唤醒一个线程，notifyAll 唤醒所有线程去竞争 CPU</p>
-<p>Object 类 API：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">notify</span><span class="hljs-params">()</span>:唤醒正在等待对象监视器的单个线程。<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">notifyAll</span><span class="hljs-params">()</span>:唤醒正在等待对象监视器的所有线程。<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">wait</span><span class="hljs-params">()</span>:导致当前线程等待，直到另一个线程调用该对象的notify()方法或 notifyAll()方法。<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">wait</span><span class="hljs-params">(<span class="hljs-type">long</span> timeout)</span>:有时限的等待, 到n毫秒后结束等待，或是被唤醒<br></code></pre></td></tr></table></figure>
-
-<p>说明：<strong>wait 是挂起线程，需要唤醒的都是挂起操作</strong>，阻塞线程可以自己去争抢锁，挂起的线程需要唤醒后去争抢锁</p>
-<p>底层原理：</p>
-<ul>
-<li>Owner 线程发现条件不满足，调用 wait 方法，即可进入 WaitSet 变为 WAITING 状态</li>
-<li>BLOCKED 和 WAITING 的线程都处于阻塞状态，不占用 CPU 时间片</li>
-<li>BLOCKED 线程会在 Owner 线程释放锁时唤醒</li>
-<li>WAITING 线程会在 Owner 线程调用 notify 或 notifyAll 时唤醒，唤醒后并不意味者立刻获得锁，<strong>需要进入 EntryList 重新竞争</strong></li>
-</ul>
-<p><img src="https://s1.imagehub.cc/images/2022/07/01/image7fdac09fa25871dc.png" alt="image7fdac09fa25871dc.png"></p>
-<h4 id="sleep-long-n-和-wait-long-n-的区别"><a href="#sleep-long-n-和-wait-long-n-的区别" class="headerlink" title="sleep(long n) 和 wait(long n)的区别"></a>sleep(long n) 和 wait(long n)的区别</h4><ul>
-<li>原理不同：sleep() 方法是属于 Thread 类，是线程用来控制自身流程的，使此线程暂停执行一段时间而把执行机会让给其他线程；wait() 方法属于 Object 类，用于线程间通信</li>
-<li>对<strong>锁的处理机制</strong>不同：调用 sleep() 方法的过程中，线程不会释放对象锁，当调用 wait() 方法的时候，线程会放弃对象锁，进入等待此对象的等待锁定池（不释放锁其他线程怎么抢占到锁执行唤醒操作），但是都会释放 CPU</li>
-<li>使用区域不同：wait() 方法必须放在<strong>同步控制方法和同步代码块（先获取锁）</strong>中使用，sleep() 方法则可以放在任何地方使用</li>
-</ul>
-<p><strong>共同点</strong></p>
-<ul>
-<li>状态一致：TIMED_WAITING</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>();<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException &#123;<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>        <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>            System.out.println(<span class="hljs-string">&quot;t1获得锁&quot;</span>);<br>            <span class="hljs-keyword">try</span> &#123;<br>                Thread.sleep(<span class="hljs-number">20000</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br>        &#125;<br>    &#125;,<span class="hljs-string">&quot;t1&quot;</span>).start();<br>    Thread.sleep(<span class="hljs-number">10000</span>);<br>    <span class="hljs-keyword">synchronized</span> (obj)&#123;<br>        System.out.println(<span class="hljs-string">&quot;获得锁&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">//输出</span><br>t1获得锁<br>在t1 sleep的时间内主线程无法获得obj的锁，而如果用wait,t1会释放锁，t2可以获得Obj的锁<br></code></pre></td></tr></table></figure>
-
-<h4 id="使用wait-notify的正确姿势："><a href="#使用wait-notify的正确姿势：" class="headerlink" title="使用wait notify的正确姿势："></a>使用wait notify的正确姿势：</h4><p>虚假唤醒：notify 只能随机唤醒一个 WaitSet 中的线程，这时如果有其它线程也在等待，那么就可能唤醒不了正确的线程</p>
-<p>解决方法：采用 notifyAll</p>
-<p>notifyAll 仅解决某个线程的唤醒问题，使用 if + wait 判断仅有一次机会，一旦条件不成立，无法重新判断</p>
-<p>解决方法：用 while + wait，当条件不成立，再次 wait</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">synchronized</span>(lock)&#123;<br>    <span class="hljs-keyword">while</span>(条件不成立)&#123;<br>        lock.wait();<br>    &#125;<br>    <span class="hljs-comment">//干活</span><br>&#125;<br><span class="hljs-keyword">synchronized</span>(lock)&#123;<br>    lock.notifyAll();<br>&#125;<br></code></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1131,7 +1096,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-count">31</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

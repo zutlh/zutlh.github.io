@@ -20,22 +20,19 @@
     var CONFIG = {"hostname":"zutlh.top","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="基本使用他们是LockSupport类中的方法 1234&#x2F;&#x2F; 暂停当前线程LockSupport.park();&#x2F;&#x2F; 恢复某个线程的运行LockSupport.unpark(暂停线程对象);  先park再unpark 12345678910111213141516Thread t1 &#x3D; new Thread(() -&gt;&amp;#123;    log.debug(&quot;start...&amp;q">
+  <meta name="description" content="注解的作用范围？1、SOURCE：@Override，编译时起作用 2、CLASS：注解信息保留到类的class文件中 3、RUNTIME：@WebServlet，程序运行时起作用。 注解的原理？注解可以理解为一种标识，我们有一些程序会去读取这些标识，然后通过反射机制判断进而完成相关的方法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="park&amp;unpark">
-<meta property="og:url" content="http://zutlh.top/2022/07/05/park/index.html">
+<meta property="og:title" content="注解">
+<meta property="og:url" content="http://zutlh.top/2022/11/06/%E6%B3%A8%E8%A7%A3/index.html">
 <meta property="og:site_name" content="山海经">
-<meta property="og:description" content="基本使用他们是LockSupport类中的方法 1234&#x2F;&#x2F; 暂停当前线程LockSupport.park();&#x2F;&#x2F; 恢复某个线程的运行LockSupport.unpark(暂停线程对象);  先park再unpark 12345678910111213141516Thread t1 &#x3D; new Thread(() -&gt;&amp;#123;    log.debug(&quot;start...&amp;q">
+<meta property="og:description" content="注解的作用范围？1、SOURCE：@Override，编译时起作用 2、CLASS：注解信息保留到类的class文件中 3、RUNTIME：@WebServlet，程序运行时起作用。 注解的原理？注解可以理解为一种标识，我们有一些程序会去读取这些标识，然后通过反射机制判断进而完成相关的方法。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s1.imagehub.cc/images/2022/07/05/image92b824844fc8a694.png">
-<meta property="og:image" content="https://s1.imagehub.cc/images/2022/07/05/image46ee1776dee5c660.png">
-<meta property="article:published_time" content="2022-07-05T06:23:28.000Z">
-<meta property="article:modified_time" content="2022-07-05T07:26:01.509Z">
+<meta property="article:published_time" content="2022-11-06T06:44:02.000Z">
+<meta property="article:modified_time" content="2022-11-06T07:39:07.832Z">
 <meta property="article:author" content="Liu Hao">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://s1.imagehub.cc/images/2022/07/05/image92b824844fc8a694.png">
 
-<link rel="canonical" href="http://zutlh.top/2022/07/05/park/">
+<link rel="canonical" href="http://zutlh.top/2022/11/06/%E6%B3%A8%E8%A7%A3/">
 
 
 <script id="page-configurations">
@@ -48,7 +45,7 @@
   };
 </script>
 
-  <title>park&unpark | 山海经</title>
+  <title>注解 | 山海经</title>
   
 
 
@@ -153,7 +150,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/07/05/park/">
+    <link itemprop="mainEntityOfPage" href="http://zutlh.top/2022/11/06/%E6%B3%A8%E8%A7%A3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -166,7 +163,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          park&unpark
+          注解
         </h1>
 
         <div class="post-meta">
@@ -177,7 +174,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-05 14:23:28 / 修改时间：15:26:01" itemprop="dateCreated datePublished" datetime="2022-07-05T14:23:28+08:00">2022-07-05</time>
+              <time title="创建时间：2022-11-06 14:44:02 / 修改时间：15:39:07" itemprop="dateCreated datePublished" datetime="2022-11-06T14:44:02+08:00">2022-11-06</time>
             </span>
 
           
@@ -191,45 +188,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><p>他们是LockSupport类中的方法</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 暂停当前线程</span><br>LockSupport.park();<br><span class="hljs-comment">// 恢复某个线程的运行</span><br>LockSupport.unpark(暂停线程对象);<br></code></pre></td></tr></table></figure>
-
-<p>先<code>park</code>再<code>unpark</code></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Thread</span> <span class="hljs-variable">t1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(() -&gt;&#123;<br>    log.debug(<span class="hljs-string">&quot;start...&quot;</span>);<br>    <span class="hljs-keyword">try</span> &#123;<br>        Thread.sleep(<span class="hljs-number">1000</span>);<br>    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>        e.printStackTrace();<br>    &#125;<br>    log.debug(<span class="hljs-string">&quot;park&quot;</span>);<br>    LockSupport.park();<br>    log.debug(<span class="hljs-string">&quot;resume...&quot;</span>);<br>&#125;,<span class="hljs-string">&quot;t1&quot;</span>);<br>t1.start();<br><br>Thread.sleep(<span class="hljs-number">2000</span>);<br>log.debug(<span class="hljs-string">&quot;unpark...&quot;</span>);<br>LockSupport.unpark(t1);<br></code></pre></td></tr></table></figure>
-
-<h4 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h4><p>与Object的wait和notify相比</p>
-<ul>
-<li>wait notify和notifyAll必须配合Object Monitor使用，而park，unpark不用。</li>
-<li>parl，unpark是以线程为单位来【阻塞】和【唤醒】线程，而notify只能随机唤醒一个等待进程，notifyAll是唤醒所有等待进程，就不那么【精确】</li>
-<li>park，unpark可以先unpark，而wait，notify不能先norify。</li>
-</ul>
-<h3 id="park，unpark原理"><a href="#park，unpark原理" class="headerlink" title="park，unpark原理"></a>park，unpark原理</h3><p>每个线程都有自己的一个Parker对象，由三部分组成<code>_counter,_cond,_mutex</code>打个比喻</p>
-<ul>
-<li>线程就像一个旅人，Parker就像他随身携带的背包，条件变量就好比背包中的帐篷，<code>_counter</code>就好比背包中的备用干粮(0为耗尽，1为充足)。</li>
-<li>调用<code>park</code>就是要看需不需要停下来休息<ul>
-<li>如果备用干粮耗尽，那么钻进帐篷休息。</li>
-<li>如果备用干粮充足，那么不需要停留，继续前行。</li>
-</ul>
-</li>
-<li>调用<code>unpark</code>，就好比令干粮充足<ul>
-<li>如果这时线程还在帐篷，就唤醒让他继续前进。</li>
-<li>如果这时线程还在运行，那么下次他调用park时，仅是消耗调备用干粮，不需停留继续前进</li>
-<li>因为背包空间有限，多次调用unpark仅会补充一份备用干粮。</li>
-</ul>
-</li>
-</ul>
-<img src="https://s1.imagehub.cc/images/2022/07/05/image92b824844fc8a694.png" alt="image92b824844fc8a694.png" style="zoom: 67%;" />
-
-<p>1.当前线程调用Unsafe.park()方法</p>
-<p>2.检查_counter，本情况为0，这时获得 _mutex互斥锁</p>
-<p>3.线程进入_cond条件变量阻塞。</p>
-<p>4.设置 _counter &#x3D; 0</p>
-<img src="https://s1.imagehub.cc/images/2022/07/05/image46ee1776dee5c660.png" alt="image46ee1776dee5c660.png" style="zoom:67%;" />
-
-<p>1.调用Unsafe.unpark(Thread_0)方法，设置_counter为1</p>
-<p>2.唤醒_cond条件变量中的Thread_0</p>
-<p>3.Thread_0恢复运行</p>
-<p>4.设置_counter为0</p>
+        <h3 id="注解的作用范围？"><a href="#注解的作用范围？" class="headerlink" title="注解的作用范围？"></a>注解的作用范围？</h3><p>1、SOURCE：@Override，编译时起作用</p>
+<p>2、CLASS：注解信息保留到类的class文件中</p>
+<p>3、RUNTIME：@WebServlet，程序运行时起作用。</p>
+<h3 id="注解的原理？"><a href="#注解的原理？" class="headerlink" title="注解的原理？"></a>注解的原理？</h3><p>注解可以理解为一种标识，我们有一些程序会去读取这些标识，然后通过反射机制判断进而完成相关的方法。</p>
 
     </div>
 
@@ -245,13 +207,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/06/30/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81/" rel="prev" title="线程状态">
-      <i class="fa fa-chevron-left"></i> 线程状态
+    <a href="/2022/10/31/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" rel="prev" title="垃圾回收">
+      <i class="fa fa-chevron-left"></i> 垃圾回收
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/07/05/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2/" rel="next" title="线程状态转换">
-      线程状态转换 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -310,7 +269,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%B9%E7%82%B9%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">特点：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#park%EF%BC%8Cunpark%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">park，unpark原理</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E8%A7%A3%E7%9A%84%E4%BD%9C%E7%94%A8%E8%8C%83%E5%9B%B4%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">注解的作用范围？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E8%A7%A3%E7%9A%84%E5%8E%9F%E7%90%86%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">注解的原理？</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
